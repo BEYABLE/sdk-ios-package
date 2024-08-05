@@ -1,0 +1,190 @@
+//
+//  ViewUtils.swift
+//  
+//
+//  Created by MarKinho on 18/07/2024.
+//
+
+import Foundation
+import UIKit
+
+class ViewUtils {
+
+    // Méthode pour remplacer une vue
+    static func replaceView(target: String, on parent: UIView, with newView: UIView) -> (UIView, [NSLayoutConstraint], [NSLayoutConstraint])? {
+        // Trouver l'ancienne vue à remplacer
+        guard let oldView = parent.viewWithRestorationIdentifier(target) else {
+            NSLog("Old view must have an ID (restoration id)")
+            return nil
+        }
+        var (originalConstraints, internalOriginalConstraints) =  replaceView(on: parent, oldView: oldView, with: newView) ?? (nil, nil)
+        return (oldView, originalConstraints!, internalOriginalConstraints!)
+    }
+    
+    static func replaceView(on parent: UIView, oldView: UIView, with newView: UIView) -> ([NSLayoutConstraint], [NSLayoutConstraint])? {
+        // Assurez-vous que l'ancienne vue a un superview
+        guard let superview = oldView.superview else {
+            NSLog("Erreur: L'ancienne vue n'a pas de superview.")
+            return nil
+        }
+        var originalConstraints = [NSLayoutConstraint]()
+        var internalOriginalConstraints = [NSLayoutConstraint]()
+        
+        // Save the original constraints if not already saved
+        let constraintsToRemove = superview.constraints.filter { constraint in
+            (constraint.firstItem as? UIView == oldView) || (constraint.secondItem as? UIView == oldView)
+        }
+        originalConstraints = constraintsToRemove
+        internalOriginalConstraints = oldView.constraints
+                
+        // Get the old view's width
+        let oldViewFrame = oldView.frame
+        
+        // Clean and remove the old view
+        oldView.cleanConstraints()
+        oldView.removeFromSuperview()
+        
+        // Add the new view to the parent
+        parent.addSubview(newView)
+        newView.translatesAutoresizingMaskIntoConstraints = false
+        // Ajustez la taille et la position de la nouvelle vue
+        newView.frame = oldViewFrame
+        
+        // Remap the constraints from the old view to the new view
+        let newConstraints = originalConstraints.compactMap { constraint -> NSLayoutConstraint? in
+            guard let firstItem = (constraint.firstItem as? UIView == oldView) ? newView : constraint.firstItem,
+                  let secondItem = (constraint.secondItem as? UIView == oldView) ? newView : constraint.secondItem else {
+                return nil
+            }
+            return NSLayoutConstraint(
+                item: firstItem,
+                attribute: constraint.firstAttribute,
+                relatedBy: constraint.relation,
+                toItem: secondItem,
+                attribute: constraint.secondAttribute,
+                multiplier: constraint.multiplier,
+                constant: constraint.constant
+            )
+        }
+        NSLayoutConstraint.activate(newConstraints)
+        
+        // Activate internal constraints if any
+        let newInternalConstraints = internalOriginalConstraints.compactMap { constraint -> NSLayoutConstraint? in
+            guard let firstItem = (constraint.firstItem as? UIView == oldView) ? newView : constraint.firstItem,
+                  let secondItem = (constraint.secondItem as? UIView == oldView) ? newView : constraint.secondItem else {
+                return nil
+            }
+            
+            return NSLayoutConstraint(
+                item: firstItem,
+                attribute: constraint.firstAttribute,
+                relatedBy: constraint.relation,
+                toItem: secondItem,
+                attribute: constraint.secondAttribute,
+                multiplier: constraint.multiplier,
+                constant: constraint.constant
+            )
+        }
+        NSLayoutConstraint.activate(newInternalConstraints)
+        
+        parent.setNeedsLayout()
+        parent.layoutIfNeeded()
+        
+        
+        return (originalConstraints, internalOriginalConstraints)
+    }
+    
+    static func restoreOriginalView(on parent: UIView, oldView: UIView, originalView: UIView, originalConstraints: [NSLayoutConstraint], internalOriginalConstraints: [NSLayoutConstraint]) {
+        // Clean the constraints of the current view
+        oldView.cleanConstraints()
+        oldView.removeFromSuperview()
+        
+        // Add the original view back to the parent
+        parent.addSubview(originalView)
+        originalView.translatesAutoresizingMaskIntoConstraints = false
+        
+        // Restore original constraints
+        NSLayoutConstraint.activate(originalConstraints)                
+        // Restore original internal constraints
+        NSLayoutConstraint.activate(internalOriginalConstraints)
+                
+        parent.setNeedsLayout()
+        parent.layoutIfNeeded()
+    }
+    
+    
+    static func checkViewHierarchy(view1: UIView, view2: UIView) -> Bool {
+        return view1.isDescendant(of: view2) || view2.isDescendant(of: view1)
+    }
+    static func insertViewAbove(parent: UIView, referenceView: UIView, newView: UIView) {
+        guard let referenceIndex = parent.subviews.firstIndex(of: referenceView) else {
+            return
+        }
+
+        parent.insertSubview(newView, at: referenceIndex)
+
+        newView.translatesAutoresizingMaskIntoConstraints = false
+        referenceView.translatesAutoresizingMaskIntoConstraints = false
+
+        // Trouver la vue au-dessus de la vue de référence, s'il y en a une
+        var viewAbove: UIView?
+        if referenceIndex > 0 {
+            viewAbove = parent.subviews[referenceIndex - 1]
+        }
+
+        // Créer des contraintes pour la nouvelle vue
+        var constraints = [
+            newView.leadingAnchor.constraint(equalTo: parent.leadingAnchor),
+            newView.trailingAnchor.constraint(equalTo: parent.trailingAnchor),
+            newView.bottomAnchor.constraint(equalTo: referenceView.topAnchor)
+        ]
+
+        // Ajuster les contraintes de la vue au-dessus pour pointer sur la nouvelle vue
+        if let viewAbove = viewAbove {
+            for constraint in parent.constraints where constraint.firstItem as? UIView == viewAbove && constraint.firstAttribute == .bottom {
+                parent.removeConstraint(constraint)
+                constraints.append(NSLayoutConstraint(item: viewAbove, attribute: .bottom, relatedBy: .equal, toItem: newView, attribute: .top, multiplier: 1, constant: 0))
+            }
+        }
+
+        // Activer toutes les contraintes
+        NSLayoutConstraint.activate(constraints)
+        parent.setNeedsLayout()
+    }
+    
+    static func insertViewBelow(parent: UIView, referenceView: UIView, newView: UIView) {
+        guard let referenceIndex = parent.subviews.firstIndex(of: referenceView) else {
+            return
+        }
+
+        parent.insertSubview(newView, at: referenceIndex + 1)
+
+        newView.translatesAutoresizingMaskIntoConstraints = false
+        referenceView.translatesAutoresizingMaskIntoConstraints = false
+
+        // Trouver la vue en dessous de la vue de référence, s'il y en a une
+        var viewBelow: UIView?
+        if referenceIndex < parent.subviews.count - 2 {
+            viewBelow = parent.subviews[referenceIndex + 2]
+        }
+
+        // Créer des contraintes pour la nouvelle vue
+        var constraints = [
+            newView.leadingAnchor.constraint(equalTo: parent.leadingAnchor),
+            newView.trailingAnchor.constraint(equalTo: parent.trailingAnchor),
+            newView.topAnchor.constraint(equalTo: referenceView.bottomAnchor)
+        ]
+
+        // Ajuster les contraintes de la vue en dessous pour pointer sur la nouvelle vue
+        if let viewBelow = viewBelow {
+            for constraint in parent.constraints where constraint.firstItem as? UIView == viewBelow && constraint.firstAttribute == .top {
+                parent.removeConstraint(constraint)
+                constraints.append(NSLayoutConstraint(item: viewBelow, attribute: .top, relatedBy: .equal, toItem: newView, attribute: .bottom, multiplier: 1, constant: 0))
+            }
+        }
+
+        // Activer toutes les contraintes
+        NSLayoutConstraint.activate(constraints)
+        parent.setNeedsLayout()
+    }
+}
