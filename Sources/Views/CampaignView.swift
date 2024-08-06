@@ -65,8 +65,21 @@ class CampaignView : NSObject, WKNavigationDelegate, WKScriptMessageHandler {
         self.campaignViewProtocol = campaignCallBack
             
         // Some time after.
-        let webView = self.warmUper.dequeue()
+        // let webView = self.warmUper.dequeue()
         
+       let contentController = WKUserContentController();
+       contentController.add(
+           self,
+           name: "callbackHandler"
+       )
+       
+       let config = WKWebViewConfiguration()
+       config.userContentController = contentController
+       
+       
+       // End Configuration
+       
+       let webView = WKWebView(frame: UIView().bounds, configuration: config)
         
         webView.translatesAutoresizingMaskIntoConstraints = false
         webView.isOpaque = false;
@@ -82,6 +95,7 @@ class CampaignView : NSObject, WKNavigationDelegate, WKScriptMessageHandler {
         // We need to have one DisplayDTO
         if campaignDto.displays.count > 0 {
             let display = campaignDto.displays[0]
+            print(display.content)
             webView.loadHTMLString(display.content, baseURL: nil)
         }
         
@@ -115,8 +129,13 @@ class CampaignView : NSObject, WKNavigationDelegate, WKScriptMessageHandler {
      */
     
     public func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+        var jsCode = ""
+        if campaignDto.displays.count > 0 {
+            jsCode = campaignDto.displays[0].associatedJavascript
+            print(jsCode)
+        }
         // Execute JavaScript code
-        webView.evaluateJavaScript("", completionHandler: { (result, error) in
+        webView.evaluateJavaScript(jsCode, completionHandler: { (result, error) in
             if(self.campaignDto?.alreadyShowen == true){
                 LogHelper.instance.showLogForSDKDevelopper(logToShow: "You try to show this campagn two times")
                 return
@@ -125,7 +144,6 @@ class CampaignView : NSObject, WKNavigationDelegate, WKScriptMessageHandler {
                 LogHelper.instance.showLogForSDKDevelopper(logToShow: "Error injecting JavaScript: \(error)")
             } else {
                 LogHelper.instance.showLogForSDKDevelopper(logToShow: "JavaScript injected successfully")
-                
                 if(self.campaignDto?.typeCampagne == .HEADER){
                     self.campaignViewProtocol?.showStickyHeaderView()
                 }

@@ -49,11 +49,12 @@ class FactoryCampaignDto {
         if let displayComponents = campagnResponse.displayComponents {
             if displayComponents.count > 0 {
                 for displayResponse in displayComponents {
-                    let displayDto = DisplayDTO(layoutType: campagnResponse.displayComponentsLayout?.layoutType ?? "", displayComponent: displayResponse)
+                    let displayDto = DisplayDTO(campaignId: campaign.campagnId, slideId: campaign.slideId, layoutType: campagnResponse.displayComponentsLayout?.layoutType ?? "", displayComponent: displayResponse)
                     campaign.displays.append(displayDto)
                 }
             } else {
-                let displayDto = DisplayDTO(layoutType: "", html: html, css: css, javascript: javaScriptFormated)
+                let displayDto = DisplayDTO(campaignId: campaign.campagnId, slideId: campaign.slideId, layoutType: "", 
+                                            html: html, css: css, javascript: javaScriptFormated)
                 campaign.displays.append(displayDto)
             }
         }

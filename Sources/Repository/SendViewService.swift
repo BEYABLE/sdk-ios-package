@@ -74,11 +74,11 @@ class SendViewService : NSObject, WKNavigationDelegate{
             categoryPageInfo: category,
             cartPageInfo: cartAttributes)
         
-        var uniqueId           = DataStorageHelper.getData(type: String.self, forKey: .uniqueId)            ?? ""
-        var trackingId         = DataStorageHelper.getData(type: String.self, forKey: .trackingId)          ?? ""
-        var sessionId          = DataStorageHelper.getData(type: String.self, forKey: .sessionId)           ?? ""
-        var sessionToken       = DataStorageHelper.getData(type: String.self, forKey: .sessionToken)        ?? ""
-        var crossSessionToken  = DataStorageHelper.getData(type: String.self, forKey: .crossSessionToken)   ?? ""
+        let uniqueId           = DataStorageHelper.getData(type: String.self, forKey: .uniqueId)            ?? ""
+        let trackingId         = DataStorageHelper.getData(type: String.self, forKey: .trackingId)          ?? ""
+        let sessionId          = DataStorageHelper.getData(type: String.self, forKey: .sessionId)           ?? ""
+        let sessionToken       = DataStorageHelper.getData(type: String.self, forKey: .sessionToken)        ?? ""
+        let crossSessionToken  = DataStorageHelper.getData(type: String.self, forKey: .crossSessionToken)   ?? ""
         
         let instanceBYRequestPageView = BYRequestPageView(
             page: pageData,
@@ -179,18 +179,18 @@ class SendViewService : NSObject, WKNavigationDelegate{
             .store(in: &self.subscriptions)
     }
     
-    public func saveInteraction(pageViewDate: String, pageUrl: String, interactions: [BYInteraction]) {
-        var uniqueId           = DataStorageHelper.getData(type: String.self, forKey: .uniqueId)            ?? ""
-        var trackingId         = DataStorageHelper.getData(type: String.self, forKey: .trackingId)          ?? ""
-        var sessionToken       = DataStorageHelper.getData(type: String.self, forKey: .sessionToken)        ?? ""
+    public func saveInteraction(campaignId: String, slideId: String, pageViewDate: String, pageUrl: String, interactions: [BYInteraction]) {
+        let uniqueId           = DataStorageHelper.getData(type: String.self, forKey: .uniqueId)            ?? ""
+        let trackingId         = DataStorageHelper.getData(type: String.self, forKey: .trackingId)          ?? ""
+        let sessionToken       = DataStorageHelper.getData(type: String.self, forKey: .sessionToken)        ?? ""
         
         let body = SaveInteractionRequestModel(
             sessionToken: sessionToken,
             uniqueId: uniqueId,
             trackingId: trackingId,
             tenant: tenant,
-            campaignId: "",
-            slideId: "",
+            campaignId: campaignId,
+            slideId: slideId,
             pageViewDate: pageViewDate,
             pageUrl: pageUrl,
             interactions: interactions)
@@ -213,9 +213,9 @@ class SendViewService : NSObject, WKNavigationDelegate{
     
     public func saveObjective(amount: CGFloat, numberOfItems: Int, reference: String, payment: String, promoCode: String, paymentStatus: String,
                               paymentDate: String, isNewClient: Bool, pseudoId: String, tags: [String]){
-        var uniqueId           = DataStorageHelper.getData(type: String.self, forKey: .uniqueId)            ?? ""
-        var trackingId         = DataStorageHelper.getData(type: String.self, forKey: .trackingId)          ?? ""
-        var sessionToken       = DataStorageHelper.getData(type: String.self, forKey: .sessionToken)        ?? ""
+        let uniqueId           = DataStorageHelper.getData(type: String.self, forKey: .uniqueId)            ?? ""
+        let trackingId         = DataStorageHelper.getData(type: String.self, forKey: .trackingId)          ?? ""
+        let sessionToken       = DataStorageHelper.getData(type: String.self, forKey: .sessionToken)        ?? ""
         
         let body = SaveObjectiveRequestModel(
             sessionToken: sessionToken,

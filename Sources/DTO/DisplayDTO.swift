@@ -20,6 +20,8 @@ public enum DisplayComponentType {
 
 public class DisplayDTO {
     
+    let campaignId: String
+    let slideId: String
     let layoutType: String
     let componentType: DisplayComponentType?
     let associatedJavascript: String
@@ -35,11 +37,14 @@ public class DisplayDTO {
     var imageWidthPx: Int = 0
     var imageHeightPx: Int = 0
     var textDisplay: TextDisplayComponent? = nil
+    var currentTarget = ""
     
 
-    init(layoutType: String, displayComponent: DisplayComponent) {
-        self.layoutType = layoutType
-        let componentType = displayComponent.componentType!
+    init(campaignId: String, slideId: String, layoutType: String, displayComponent: DisplayComponent) {
+        self.campaignId     = campaignId
+        self.slideId        = slideId
+        self.layoutType     = layoutType
+        let componentType   = displayComponent.componentType!
         
         if componentType.caseInsensitiveCompare("ImageFromBinary") == .orderedSame {
             self.componentType          = .IMG_B64
@@ -115,7 +120,9 @@ public class DisplayDTO {
         }
     }
     
-    init(layoutType: String, html: String, css: String, javascript: String) {
+    init(campaignId: String, slideId: String, layoutType: String, html: String, css: String, javascript: String) {
+        self.campaignId             = campaignId
+        self.slideId                = slideId
         self.componentType          = .HTML
         self.layoutType             = layoutType
         self.associatedJavascript   = javascript

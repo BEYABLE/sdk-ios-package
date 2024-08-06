@@ -1,16 +1,10 @@
 # SDK BeYable iOS
 
-## Installation
-Ajouter la ligne suivante au fichier pod
-```
-pod 'BeyableClient'
-```
-
 ## Intégration
 
 Avant tout appel au SDK, il est nécessaire de l'initialiser avec les clefs fournies par BeYable
 ```
-let beyableClient = BeyableClientiOS(tokenClient: "apiKey")
+let beyableClient = BeyableSDK(tokenClient: "apiKey")
 ```
 
 
@@ -22,6 +16,7 @@ let beyableClient = BeyableClientiOS(tokenClient: "apiKey")
   override func viewDidLoad() {
     super.viewDidLoad()
     let homePageAttributes = BYHomeAttributes(tags: ["screenTitle":"\(self.screenTitle)", "numberCategory":"\(self.productCollections.count)"])
+    
     AppDelegate.instance.beyableClient.sendPageview(page: EPageUrlTypeBeyable.HOME, currentView: self.view, attributes: homePageAttributes)
   }
 ```
@@ -29,6 +24,7 @@ let beyableClient = BeyableClientiOS(tokenClient: "apiKey")
 ## Exemple page ViewController produit 
 ```
   let productBY : BYProductAttributes = BYProductAttributes(reference: productObject?.id, name: productObject?.name, url: productObject?.imageUrl, priceBeforeDiscount: productObject?.price.value ?? 0.0, sellingPrice: productObject?.price.value ?? 0, stock: 1, thumbnailUrl: "", tags: ["type":"\(productObject?.type ?? "")","materiel":"\(productObject?.info?.material ?? "")"])
+  
   AppDelegate.instance.beyableClient.sendPageview(page: EPageUrlTypeBeyable.PRODUCT, currentView: self.view, attributes: productBY)
 ```
 
@@ -56,5 +52,5 @@ let beyableClient = BeyableClientiOS(tokenClient: "apiKey")
    
   func onBYClick(cellId: String, value: String) {
     NSLog("Campaing clicked for cell \(cellId) with value \(value)")
-}
+  }
 ```

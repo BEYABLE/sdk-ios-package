@@ -21,6 +21,9 @@ protocol CallBackService {
 @available(iOS 13.0, *)
 public class BeyableSDK : NSObject, WKNavigationDelegate, CallBackService{
     
+    
+    static private(set) var instance: BeyableSDK! = nil
+    
     private var subscriptions = Set<AnyCancellable>()
     /// Handles displaying views campaing
     let byHandleViews = BYHandleViews()
@@ -31,11 +34,27 @@ public class BeyableSDK : NSObject, WKNavigationDelegate, CallBackService{
      - parameter loggingEnabledUser: Optional. By default, it's false. Set it to true if you want to enable logging for the SDK.
      - parameter environment: By default it's production
      */
-    public init(tokenClient: String,  environment: EnvironmentBeyable? = EnvironmentBeyable.production, loggingEnabledUser: Bool? = true) {
+    
+    public convenience init(tokenClient: String, environment: EnvironmentBeyable? = EnvironmentBeyable.production, loggingEnabledUser: Bool? = true) {
+        self.init(tokenClient: tokenClient, tenant: "", environment: environment, loggingEnabledUser: loggingEnabledUser)
+    }
+    
+    /**
+     This function initializes the Beyable SDK.
+     - parameter tokenClient: The client token used for authentication.
+     - parameter tenant: The tenant to be send on each request
+     - parameter loggingEnabledUser: Optional. By default, it's false. Set it to true if you want to enable logging for the SDK.
+     - parameter environment: By default it's production
+     */
+    public init(tokenClient: String, tenant: String, environment: EnvironmentBeyable? = EnvironmentBeyable.production, loggingEnabledUser: Bool? = true) {
         LogHelper.instance.showLog = loggingEnabledUser
+        // Set the keys on Storage
         DataStorageHelper.setData(value: tokenClient, key: .apiKey)
+        // Set the base url
         BeyableService.shared.setBaseUrlApi(baseUrl: environment?.rawValue ?? EnvironmentBeyable.production.rawValue)
-        BYObservable.shared
+        // Set tenant
+        SendViewService.instance.tenant = tenant
+        // Warm up some Webviews on init
         WKWebViewWarmUper.shared.prepare()
     }
     
@@ -72,6 +91,8 @@ public class BeyableSDK : NSObject, WKNavigationDelegate, CallBackService{
             }
         }
     }
+    
+    
     /// This function is called after showing the campaign to tell the API Beyable that the campaing was showed
     /// - Parameters:
     ///   - attributes: The campaign  ``CampaignDTO`` that has been shown.
@@ -142,14 +163,35 @@ public class BeyableSDK : NSObject, WKNavigationDelegate, CallBackService{
         self.byHandleViews.cellUnbinded(cell: cell, elementId: elemementId);
     }
     
-    
+    ///
+    /// Cette méthode enregistre un objectif de transaction en envoyant les détails relatifs à la transaction à un service.
+    ///
+    /// Paramètres:
+    ///     amount (CGFloat): Le montant de la transaction.
+    ///     numberOfItems (Int): Le nombre d'articles achetés.
+    ///     reference (String): La référence de la transaction.
+    ///     payment (String): Le mode de paiement utilisé.
+    ///     promoCode (String): Le code promotionnel appliqué, s'il y en a un.
+    ///     paymentStatus (String): Le statut du paiement (ex. : "Completed", "Pending").
+    ///     paymentDate (String): La date du paiement au format String.
+    ///     isNewClient (Bool): Indique si le client est nouveau (true) ou non (false).
+    ///     pseudoId (String): Un identifiant pseudonyme pour le client.
+    ///     tags ([String]): Une liste de balises associées à la transaction.
+    ///
     public func saveObjectif(amount: CGFloat, numberOfItems: Int, reference: String, payment: String, promoCode: String, paymentStatus: String,
                              paymentDate: String, isNewClient: Bool, pseudoId: String, tags: [String]) {
         SendViewService.instance.saveObjective(amount: amount, numberOfItems: numberOfItems, reference: reference, payment: payment, promoCode: promoCode, paymentStatus: paymentStatus, paymentDate: paymentDate, isNewClient: isNewClient, pseudoId: pseudoId, tags: tags)
     }
     
+    /// Cette méthode enregistre une interaction utilisateur sur une page spécifique en envoyant les détails de l'interaction à un service.
+    ///
+    /// Paramètres:
+    ///     pageViewDate (String): La date de la vue de la page au format String.
+    ///     pageUrl (String): L'URL de la page où l'interaction a eu lieu.
+    ///     interactions ([BYInteraction]): Une liste d'interactions utilisateur. BYInteraction est un type représentant une interaction spécifique.
+
     public func saveInteraction(pageViewDate: String, pageUrl: String, interactions: [BYInteraction]) {
-        SendViewService.instance.saveInteraction(pageViewDate: pageViewDate, pageUrl: pageUrl, interactions: interactions)
+        SendViewService.instance.saveInteraction(campaignId: "", slideId: "", pageViewDate: pageViewDate, pageUrl: pageUrl, interactions: interactions)
     }
 }
 

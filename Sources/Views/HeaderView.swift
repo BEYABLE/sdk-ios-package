@@ -134,6 +134,7 @@ class HeaderView : CampaignView, CampaignViewProtocol{
     func showInPageView() {
         
     }
+    
     /// Rmove WebView from parents View
     public func dismissWebView(){
         webView?.removeFromSuperview()

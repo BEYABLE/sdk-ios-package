@@ -125,6 +125,8 @@ class InCollectionView : CampaignView, CampaignViewProtocol {
                        if display.ctaHasInteraction {
                            urlWrapper.interaction = display.ctaInteractionValue
                        }
+                       urlWrapper.campaignId = display.campaignId
+                       urlWrapper.slideId = display.slideId
                        ctaUrlWrappers.append(urlWrapper)
                        let tapGesture = UITapGestureRecognizer(target: urlWrapper, action: #selector(urlWrapper.handleTap(_:)))
                        imageView.addGestureRecognizer(tapGesture)
@@ -147,6 +149,8 @@ class InCollectionView : CampaignView, CampaignViewProtocol {
                        if display.ctaHasInteraction {
                            urlWrapper.interaction = display.ctaInteractionValue
                        }
+                       urlWrapper.campaignId = display.campaignId
+                       urlWrapper.slideId = display.slideId
                        ctaUrlWrappers.append(urlWrapper)
                        let tapGesture = UITapGestureRecognizer(target: urlWrapper, action: #selector(urlWrapper.handleTap(_:)))
                        imageView.addGestureRecognizer(tapGesture)
@@ -198,6 +202,8 @@ class InCollectionView : CampaignView, CampaignViewProtocol {
                        if display.ctaHasInteraction {
                            urlWrapper.interaction = display.ctaInteractionValue
                        }
+                       urlWrapper.campaignId = display.campaignId
+                       urlWrapper.slideId = display.slideId
                        ctaUrlWrappers.append(urlWrapper)
                        let tapGesture = UITapGestureRecognizer(target: urlWrapper, action: #selector(urlWrapper.handleTap(_:)))
                        label.addGestureRecognizer(tapGesture)
@@ -229,6 +235,8 @@ class InCollectionView : CampaignView, CampaignViewProtocol {
                         if display.ctaHasInteraction {
                             callbackWrapper.interaction = display.ctaInteractionValue
                         }
+                        callbackWrapper.campaignId = display.campaignId
+                        callbackWrapper.slideId = display.slideId
                         ctaCallbackWrappers.append(callbackWrapper)
                         let tapGesture = UITapGestureRecognizer(target: callbackWrapper, action: #selector(callbackWrapper.handleTap(_:)))
                         stackView.subviews[i].addGestureRecognizer(tapGesture)
@@ -294,6 +302,8 @@ class UrlWrapper {
     
     var urlString: String
     var interaction: String?
+    var campaignId: String?
+    var slideId: String?
     
     init(urlString: String) {
         self.urlString = urlString;
@@ -309,7 +319,8 @@ class UrlWrapper {
         }
         // If we have a interaction, send it to Beyable
         if let i = interaction {
-            SendViewService.instance.saveInteraction(pageViewDate: StringUtils.getCurrentISO8601Date(), pageUrl: "",
+            SendViewService.instance.saveInteraction(campaignId: campaignId ?? "", slideId: slideId ?? "",
+                                                     pageViewDate: StringUtils.getCurrentISO8601Date(), pageUrl: "",
                                                      interactions: [BYInteraction(eventName: "", eventValue: i),])
         }
     }
@@ -321,6 +332,8 @@ class CallbackWrapper {
     var cellId: String
     var value: String
     var interaction: String?
+    var campaignId: String?
+    var slideId: String?
     
     init(listener: OnCtaDelegate, cellId: String, value: String) {
         self.listener   = listener
@@ -332,7 +345,8 @@ class CallbackWrapper {
         listener.onBYClick(cellId: self.cellId, value: self.value)
         // If we have a interaction, send it to Beyable
         if let i = interaction {
-            SendViewService.instance.saveInteraction(pageViewDate: StringUtils.getCurrentISO8601Date(), pageUrl: "",
+            SendViewService.instance.saveInteraction(campaignId: campaignId ?? "", slideId: slideId ?? "",
+                                                     pageViewDate: StringUtils.getCurrentISO8601Date(), pageUrl: "",
                                                      interactions: [BYInteraction(eventName: cellId, eventValue: i),])
         }
     }
