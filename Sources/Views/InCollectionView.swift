@@ -314,7 +314,7 @@ class UrlWrapper {
             if UIApplication.shared.canOpenURL(url) {
                 UIApplication.shared.open(url, options: [:], completionHandler: nil)
             } else {
-                NSLog("Invalid URL or unable to open: \(urlString)")
+                LogHelper.instance.showLog(logToShow: "Invalid URL or unable to open: \(urlString)")
             }
         }
         // If we have a interaction, send it to Beyable

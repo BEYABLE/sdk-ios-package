@@ -65,7 +65,7 @@ class HeaderView : CampaignView, CampaignViewProtocol{
                     }
                     self.shiftView(heightBanner: heightInPoints, valueShift: heightInPoints)
                 } else if let error = error {
-                    NSLog("Error evaluating JavaScript: \(error)")
+                    LogHelper.instance.showLog(logToShow: "Error evaluating JavaScript: \(error)")
                 }
             }
         }

@@ -38,6 +38,7 @@ class CampaignView : NSObject, WKNavigationDelegate, WKScriptMessageHandler {
     lazy var warmUper: WKWebViewWarmUper = {
         return WKWebViewWarmUper { [weak self] in
             let configuration = WKWebViewConfiguration()
+            configuration.preferences.javaScriptEnabled = true
             let contentController = WKUserContentController()
             contentController.add(self!, name: "callbackHandler")
             configuration.userContentController = contentController
@@ -95,7 +96,9 @@ class CampaignView : NSObject, WKNavigationDelegate, WKScriptMessageHandler {
         // We need to have one DisplayDTO
         if campaignDto.displays.count > 0 {
             let display = campaignDto.displays[0]
-            print(display.content)
+            var htmlContent = display.content
+            /// hmmmmmmm
+            htmlContent += "\n<script>console.log(\"This is a message from JavaScript!\");\(display.associatedJavascript)</script>"
             webView.loadHTMLString(display.content, baseURL: nil)
         }
         
@@ -132,8 +135,14 @@ class CampaignView : NSObject, WKNavigationDelegate, WKScriptMessageHandler {
         var jsCode = ""
         if campaignDto.displays.count > 0 {
             jsCode = campaignDto.displays[0].associatedJavascript
-            print(jsCode)
+            LogHelper.instance.showLog(logToShow: jsCode)
         }
+        var byDataString = "{}";
+        var byContextDataString = "{}";
+        //byContextDataString = attributes.getContextData().toString();
+        //    byDataString = attributes.toJSONObject().toString();
+        
+        let jsScript = "function() {\nvar node = document.createElement('style');\nnode.type = 'text/css';\nwindow.by_data = \(byDataString);\nwindow.by_context_data = \(byContextDataString);\ndocument.head.appendChild(node);\n\(jsCode)\n}";
         // Execute JavaScript code
         webView.evaluateJavaScript(jsCode, completionHandler: { (result, error) in
             if(self.campaignDto?.alreadyShowen == true){

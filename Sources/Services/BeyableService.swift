@@ -32,6 +32,11 @@ class BeyableService {
     /// - Parameter baseUrl: preproduction url or production url
     public func setBaseUrlApi(baseUrl : String){
         self.baseApiURL = baseUrl
+        // Vérifier si la chaîne se termine par "/"
+        if baseApiURL.hasSuffix("/") {
+            // Enlever le dernier caractère "/"
+            baseApiURL.removeLast()
+        }
     }
     
     
@@ -45,7 +50,7 @@ class BeyableService {
             self.enqueueRequest(endpoint: endpoint, body: body) { (result: Result<T, BeyableDataAPIError>) in
                 switch result {
                 case .success(let value):
-                    print(value)
+                    LogHelper.instance.showLog(logToShow: "\(value)")
                     promise(.success(value))
                 case .failure(let error):
                     promise(.failure(error))
@@ -90,7 +95,7 @@ class BeyableService {
             return
         }
         
-        NSLog(request.log())
+        LogHelper.instance.showLog(logToShow: request.log())
         
         urlSession.dataTaskPublisher(for: request)
             .tryMap { (data, response) -> Data in
@@ -98,11 +103,6 @@ class BeyableService {
                       200...299 ~= httpResponse.statusCode else {
                     throw BeyableDataAPIError.responseError(
                         (response as? HTTPURLResponse)?.statusCode ?? 500)
-                }
-                
-                // Déboguer les données reçues
-                if let jsonString = String(data: data, encoding: .utf8) {
-                    print("Response JSON: \(jsonString)")
                 }
                 return data
             }

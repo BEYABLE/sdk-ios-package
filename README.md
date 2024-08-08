@@ -7,31 +7,105 @@ Avant tout appel au SDK, il est nécessaire de l'initialiser avec les clefs four
 let beyableClient = BeyableSDK(tokenClient: "apiKey")
 ```
 
+D'autres méthodes 'init' sont disponibles :
+```
+public convenience init(tokenClient: String, environment: EnvironmentBeyable? = EnvironmentBeyable.production, loggingEnabledUser: Bool? = true)
+    
+public convenience init(tokenClient: String, baseUrl: String, loggingEnabledUser: Bool? = true)
+    
+public convenience init(tokenClient: String, loggingEnabledUser: Bool? = true)
+    
+public convenience init(tokenClient: String, baseUrl: String)
+    
+public convenience init(tokenClient: String)
+```
+### Méthodes de configuration
+```
+/** 
+ Set the base url for BeYable servers
+ - parameter baseUrl : url Beyable
+ */
+public func setBaseUrl(_ baseUrl: String)
+
+
+/**
+ Set the tenant to be send on each requests
+ - parameter tenant: A arbitrary string that identify the tenant
+ */
+public func setTenant(tenant: String)
+
+    
+/// Set the user infos to be send at each request
+/// - Parameter visitorInfos:the infos of the user ``BYVisitorInfos`` (Can be nil to clean)
+public func setVisitorInfos(visitorInfos : BYVisitorInfos? = nil)
+
+```
+
+
 
 ## Usage
 À chaque affichage d'une vue, on informe le SDK.</br>
 
 ### Exemple 'ViewController' - Page 'Home'
 ```
-  override func viewDidLoad() {
-    super.viewDidLoad()
-    let homePageAttributes = BYHomeAttributes(tags: ["screenTitle":"\(self.screenTitle)", "numberCategory":"\(self.productCollections.count)"])
-    
-    AppDelegate.instance.beyableClient.sendPageview(page: EPageUrlTypeBeyable.HOME, currentView: self.view, attributes: homePageAttributes)
-  }
+override func viewDidLoad() {
+super.viewDidLoad()
+let homePageAttributes = BYHomeAttributes(tags: ["screenTitle":"\(self.screenTitle)", "numberCategory":"\(self.productCollections.count)"])
+
+AppDelegate.instance.beyableClient.sendPageview(page: EPageUrlTypeBeyable.HOME, currentView: self.view, attributes: homePageAttributes)
+}
 ```
 
-## Exemple page ViewController produit 
+### Exemple page ViewController produit 
 ```
-  let productBY : BYProductAttributes = BYProductAttributes(reference: productObject?.id, name: productObject?.name, url: productObject?.imageUrl, priceBeforeDiscount: productObject?.price.value ?? 0.0, sellingPrice: productObject?.price.value ?? 0, stock: 1, thumbnailUrl: "", tags: ["type":"\(productObject?.type ?? "")","materiel":"\(productObject?.info?.material ?? "")"])
-  
-  AppDelegate.instance.beyableClient.sendPageview(page: EPageUrlTypeBeyable.PRODUCT, currentView: self.view, attributes: productBY)
+let productBY : BYProductAttributes = BYProductAttributes(reference: productObject?.id, name: productObject?.name, url: productObject?.imageUrl, priceBeforeDiscount: productObject?.price.value ?? 0.0, sellingPrice: productObject?.price.value ?? 0, stock: 1, thumbnailUrl: "", tags: ["type":"\(productObject?.type ?? "")","materiel":"\(productObject?.info?.material ?? "")"])
+
+AppDelegate.instance.beyableClient.sendPageview(page: EPageUrlTypeBeyable.PRODUCT, currentView: self.view, attributes: productBY)
+```
+
+### Exemple page en SwiftUI
+```
+struct ProductsCollectionPageView: View, OnSendPageView {
+    
+    let products: [Product]
+    @State private var count = 0
+        
+    var body: some View {
+        NavigationView {
+            List {
+                ForEach(Array(products.enumerated()), id: \.element.id) { index, product in
+                    NavigationLink(destination: ProductDetailView(product: product)) {
+                        BasketProductCardView(viewModel: product, index: index)
+                    }
+                }
+            }
+            .navigationTitle("SwiftUI Collection")
+        }
+        .onAppear() {
+            // Send page to Beyable
+             AppDelegate.instance.beyableClient.sendPageview(
+                page: EPageUrlTypeBeyable.CART,
+                attributes: BYCartAttributes(tags: []),
+                cartInfos: BYCartInfos(items: []),
+                callback: self)
+        }
+    }
+    
+    func onBYSuccess() {
+    
+    }
+    
+    func onBYError() {
+        
+    }
+    
+}
 ```
 
 
 ## Affichage des campagnes 
 
-#### InCollection
+#### InCollection (UIKit / UITableView)
 
 ```
 // Delegate methods
@@ -54,3 +128,36 @@ let beyableClient = BeyableSDK(tokenClient: "apiKey")
     NSLog("Campaing clicked for cell \(cellId) with value \(value)")
   }
 ```
+
+#### InCollection (SwiftUI)
+Pour du SwiftUI, il faut avoir des placeholder dans la structure de la vue
+```
+    ...
+    VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 4) {
+            ...
+            BYInCollectionPlaceHolder(
+                placeHolderId: "cart_product_title",
+                elementId: viewModel.name,
+                delegate: self)
+            ...
+        }
+    }
+    ...
+    
+
+func onBYClick(cellId: String, value: String) {
+    NSLog("Campaing clicked for cell \(cellId) with value \(value)")
+}
+```
+
+#### InPage (SwiftUI)
+Pour du SwiftUI, il faut avoir des placeholder dans la structure de la vue
+```
+VStack(alignment: .leading, spacing: 10) {
+    ...
+    BYInPagePlaceHolder(placeHolderId: "placholer01")
+    ...
+}
+
+``

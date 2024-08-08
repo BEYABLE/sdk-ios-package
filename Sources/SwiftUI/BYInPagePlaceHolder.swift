@@ -28,7 +28,7 @@ public struct BYInPagePlaceHolder: View {
                 .frame(height: webViewHeight)
                 .onDisappear {
                     // Clear or reset the view when it disappears
-                    print("Removing campaing \(placeHolderId)")
+                    LogHelper.instance.showLog(logToShow: "Removing campaing \(placeHolderId)")
                     beyableObservable.inPageCampaigns.removeValue(forKey: placeHolderId)
                 }
         }

@@ -16,7 +16,7 @@ public class WarmUper<Object: WarmUpable> {
     
     private let creationClosure: () -> Object
     private var warmedUpObjects: [Object] = []
-    public var numberOfWamedUpObjects: Int = 1 {
+    public var numberOfWamedUpObjects: Int = 3 {
         didSet {
             prepare()
         }

@@ -19,6 +19,7 @@ enum EndpointUrl: String {
 
 /// For now we can use preproduction or production environement
 public enum EnvironmentBeyable : String{
-    case preprod = "https://webapp-beyable-preprod.azurewebsites.net"
-    case production = "https://fd.front.activation.beyable.com"
+    case preprod        = "https://front-app.preprod.activation.beyable.com"
+    case production     = "https://front-app.activation.beyable.com"
+    case production2    = "https://fd.front-app.activation.beyable.com"
 }

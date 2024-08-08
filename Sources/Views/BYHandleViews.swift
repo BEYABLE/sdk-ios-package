@@ -30,10 +30,14 @@ public class BYHandleViews : NSObject, JavascriptCallback {
     
     
     private var callBackService : CallBackService?
-    public override init() {
+    
+    public init(currentView: UIView?) {
         super.init()
-        NotificationCenter.default.addObserver(self, selector: #selector(orientationDidChange), name: UIDevice.orientationDidChangeNotification, object: nil)
+        self.currentView = currentView
+        NotificationCenter.default.addObserver(self, selector: #selector(orientationDidChange), 
+                                               name: UIDevice.orientationDidChangeNotification, object: nil)
     }
+    
     deinit {
         NotificationCenter.default.removeObserver(self, name: UIDevice.orientationDidChangeNotification, object: nil)
         

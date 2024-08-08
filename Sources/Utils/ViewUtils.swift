@@ -14,7 +14,7 @@ class ViewUtils {
     static func replaceView(target: String, on parent: UIView, with newView: UIView) -> (UIView, [NSLayoutConstraint], [NSLayoutConstraint])? {
         // Trouver l'ancienne vue à remplacer
         guard let oldView = parent.viewWithRestorationIdentifier(target) else {
-            NSLog("Old view must have an ID (restoration id)")
+            LogHelper.instance.showLog(logToShow: "Old view must have an ID (restoration id)")
             return nil
         }
         var (originalConstraints, internalOriginalConstraints) =  replaceView(on: parent, oldView: oldView, with: newView) ?? (nil, nil)
@@ -24,7 +24,7 @@ class ViewUtils {
     static func replaceView(on parent: UIView, oldView: UIView, with newView: UIView) -> ([NSLayoutConstraint], [NSLayoutConstraint])? {
         // Assurez-vous que l'ancienne vue a un superview
         guard let superview = oldView.superview else {
-            NSLog("Erreur: L'ancienne vue n'a pas de superview.")
+            LogHelper.instance.showLog(logToShow: "Erreur: L'ancienne vue n'a pas de superview.")
             return nil
         }
         var originalConstraints = [NSLayoutConstraint]()
