@@ -24,7 +24,7 @@ public class BeyableSDK : NSObject, WKNavigationDelegate, CallBackService{
     private var subscriptions = Set<AnyCancellable>()
     
     /// Handles displaying views campaing
-    private let displayers = NSMapTable<NSObject, BYHandleViews>(keyOptions: .weakMemory, valueOptions: .strongMemory)
+    private let displayers  = NSMapTable<NSString, BYHandleViews>(keyOptions: .weakMemory, valueOptions: .strongMemory)
 
     /**
      This function initializes the Beyable SDK.
@@ -107,32 +107,25 @@ public class BeyableSDK : NSObject, WKNavigationDelegate, CallBackService{
     ///   - page: the BYPage with the information needed
     ///   - currentView: The current View
     ///   - attributes: The optional page-related information such as ``BYHomeAttributes``, ``BYTransactionAttributes``, ``BYCartInfos``, ``BYProductInfos``, ``BYCategory``, ``BYGenericAttributes``
-    public func sendPageview(page : EPageUrlTypeBeyable, currentView : UIView, 
-                             attributes : BYAttributes?, cartInfos : BYCartInfos? = nil,
+    public func sendPageview(url: String, page : EPageUrlTypeBeyable, currentView : UIView, attributes : BYAttributes?, cartInfos : BYCartInfos? = nil,
                              callback: OnSendPageView?) {
-        SendViewService.instance.sendPageview(attributes: attributes, page : page, cartInfos : cartInfos,  success: { (campaignsDTO) in
-            let displayer = self.getOrCreateDisplayer(for: currentView)
+        SendViewService.instance.sendPageview(url: url, page: page, attributes: attributes, cartInfos : cartInfos,  success: { (campaignsDTO) in
+            let displayer = self.getOrCreateDisplayer(for: url, and: currentView)
             displayer.setCampagns(listCampagns: campaignsDTO, callBackService: self)
             if callback != nil {
                 // When background work is done, call the completion handler on the main thread
-                DispatchQueue.global().async {
-                    // Background work done
-                    DispatchQueue.main.async {
-                        // Call the completion handler on the main thread
-                        callback!.onBYSuccess()
-                    }
+                DispatchQueue.main.async {
+                    // Call the completion handler on the main thread
+                    callback!.onBYSuccess()
                 }
             }
         }) { (error) in
             LogHelper.instance.showLog(logToShow: "Request sendPageview just failed \(error.errorDescription ?? "")")
             if callback != nil {
                 // When background work is done, call the completion handler on the main thread
-                DispatchQueue.global().async {
-                    // Background work done
-                    DispatchQueue.main.async {
-                        // Call the completion handler on the main thread
-                        callback!.onBYError()
-                    }
+                DispatchQueue.main.async {
+                    // Call the completion handler on the main thread
+                    callback!.onBYError()
                 }
             }
         }
@@ -145,21 +138,28 @@ public class BeyableSDK : NSObject, WKNavigationDelegate, CallBackService{
     ///   - page: the BYPage with the information needed
     ///   - currentView: The current View SwiftUI
     ///   - attributes: The optional page-related information such as ``BYHomeAttributes``, ``BYTransactionAttributes``, ``BYCartInfos``, ``BYProductInfos``, ``BYCategory``, ``BYGenericAttributes``
-    public func sendPageview(page : EPageUrlTypeBeyable, attributes : BYAttributes?, cartInfos : BYCartInfos? = nil, callback: OnSendPageView?) {
-        /*let vc = UIHostingController(rootView: currentView)
-         self.sendPageview(
-         page : page, currentView : vc.view, attributes : attributes, cartInfos : cartInfos)*/
-        // byHandleViews.swiftUiCurrentView = true
-        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-           let currentWindow = windowScene.windows.first {
-            let currentViewController = currentWindow.rootViewController
-            self.sendPageview(page : page, currentView : currentViewController!.view!,
-                              attributes : attributes, cartInfos : cartInfos,
-                              callback: callback)
-            
+    public func sendPageview(url: String, page: EPageUrlTypeBeyable, currentView: any View,
+                             attributes : BYAttributes?, cartInfos: BYCartInfos? = nil,
+                             callback: OnSendPageView?) {
+        SendViewService.instance.sendPageview(url: url, page: page, attributes: attributes, cartInfos : cartInfos,  success: { (campaignsDTO) in
+            let displayer = self.getOrCreateDisplayer(for: url, and: nil)
+            displayer.setCampagns(listCampagns: campaignsDTO, callBackService: self)
+            if callback != nil {
+                // When background work is done, call the completion handler on the main thread
+                DispatchQueue.main.async {
+                    callback!.onBYSuccess()
+                }
+            }
+        }) { (error) in
+            LogHelper.instance.showLog(logToShow: "Request sendPageview just failed \(error.errorDescription ?? "")")
+            if callback != nil {
+                // When background work is done, call the completion handler on the main thread
+                DispatchQueue.main.async {
+                    callback!.onBYError()
+                }
+            }
         }
     }
-    
     
     /// This function is called after showing the campaign to tell the API Beyable that the campaing was showed
     /// - Parameters:
@@ -183,20 +183,14 @@ public class BeyableSDK : NSObject, WKNavigationDelegate, CallBackService{
     
     // MARK: - UITableView cells binding for InCollection campaigns
     
-    public func sendCellBinded(cell: UITableViewCell, elementId: String, callback: OnCtaDelegate?) {
-        // Get Current View with help of currentViewController
-        if let currentView = self.getCurrentView() {
-            let displayer = self.getOrCreateDisplayer(for: currentView)
-            displayer.cellBinded(cell: cell, elementId: elementId, callback: callback);
-        }
+    public func sendCellBinded(url: String, cell: UITableViewCell, elementId: String, callback: OnCtaDelegate?) {
+        let displayer = self.getOrCreateDisplayer(for: url, and: nil)
+        displayer.cellBinded(cell: cell, elementId: elementId, callback: callback)
     }
     
-    public func sendCellUnbinded(cell: UITableViewCell, elementId: String) {
-        // Get Current View with help of currentViewController
-        if let currentView = self.getCurrentView() {
-            let displayer = self.getOrCreateDisplayer(for: currentView)
-            displayer.cellUnbinded(cell: cell, elementId: elementId);
-        }
+    public func sendCellUnbinded(url: String, cell: UITableViewCell, elementId: String) {
+       let displayer = self.getOrCreateDisplayer(for: url, and: nil)
+       displayer.cellUnbinded(cell: cell, elementId: elementId)
     }
     
     ///
@@ -232,24 +226,28 @@ public class BeyableSDK : NSObject, WKNavigationDelegate, CallBackService{
     
     /// Retrieve the current UIView form the curent UIViewController
     private func getCurrentView() -> UIView? {
-        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-           let currentWindow = windowScene.windows.first {
-            if let currentViewController = currentWindow.rootViewController {
-                return currentViewController.view
-            }
-        }
+//        DispatchQueue.main.async {
+//            if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+//               let currentWindow = windowScene.windows.first {
+//                if let currentViewController = currentWindow.rootViewController {
+//                    return currentViewController.view
+//                }
+//            }
+//        }
         return nil
     }
     
-    private func getOrCreateDisplayer(for view: UIView) -> BYHandleViews {
+    private func getOrCreateDisplayer(for key:String, and view: UIView?) -> BYHandleViews {
+        let nsKey = key as NSString
+        
         // Vérifier si l'objet existe déjà dans le NSMapTable
-        if let displayer = displayers.object(forKey: view) {
+        if let displayer = displayers.object(forKey: nsKey) {
             return displayer
         } else {
             // Si l'objet n'existe pas, en créer un nouveau
             let newDisplayer = BYHandleViews(currentView: view)
             // Ajouter le nouvel objet à la NSMapTable
-            displayers.setObject(newDisplayer, forKey: view)
+            displayers.setObject(newDisplayer, forKey: nsKey)
             return newDisplayer
         }
     }

@@ -9,12 +9,35 @@ import Foundation
 import UIKit
 
 class ViewUtils {
+    
+    /// This function try to find a view by his id
+    /// - Parameters:
+    ///   - view: The parent view containing the view with the id id
+    ///   - id:  the accessibilityIdentifier
+    /// - Returns: the view with the id : id
+    static func findSubview(view : UIView , withId id: String) -> UIView? {
+        //Checks if the identifier of the current view matches the given string
+        if view.accessibilityIdentifier == id || view.restorationIdentifier == id{
+            return view
+        }
+        
+        // Recursive traversal of subviews.
+        for subview in view.subviews {
+            if let foundView = findSubview(view: subview, withId: id) {
+                return foundView
+            }
+        }
+        
+        // If no matching view is found, returns nil.
+        return nil
+    }
+        
 
     // Méthode pour remplacer une vue
     static func replaceView(target: String, on parent: UIView, with newView: UIView) -> (UIView, [NSLayoutConstraint], [NSLayoutConstraint])? {
         // Trouver l'ancienne vue à remplacer
-        guard let oldView = parent.viewWithRestorationIdentifier(target) else {
-            LogHelper.instance.showLog(logToShow: "Old view must have an ID (restoration id)")
+        guard let oldView = findSubview(view: parent, withId: target) else {
+            LogHelper.instance.showLog(logToShow: "View to be replaced not found")
             return nil
         }
         var (originalConstraints, internalOriginalConstraints) =  replaceView(on: parent, oldView: oldView, with: newView) ?? (nil, nil)

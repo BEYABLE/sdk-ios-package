@@ -47,6 +47,7 @@ public struct BYRequestPageView: Codable {
 }
 
 public protocol BYAttributes : Codable{
+    
     var contextData : [String: String]? { get set }
 }
 
@@ -341,7 +342,7 @@ public struct BYProductAttributes : BYAttributes{
  *       }
  *     }
  **/
-public struct BYCategoryAttributes : BYAttributes{
+public struct BYCategoryAttributes : BYAttributes {
     public var contextData: [String : String]?
     let CategoryId : String?
     let CategoryName : String?

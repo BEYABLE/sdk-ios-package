@@ -23,13 +23,14 @@ public struct BYInCollectionPlaceHolder: View {
     }
     
     public var body: some View {
-        if let campaignView = beyableObservable.inCollectionCampaigns[placeHolderId + "_" + elementId] {
+        if let campaignView = beyableObservable.getCampaign(placeHolderId + "_" + elementId) {
             GeometryReader { geometry in
                 let height = max(0, campaignView.getHeight())
-                BYInCollectionViewRepresentable(campaignView: campaignView, cellId: elementId, delegate: delegate)
+                BYInCollectionViewRepresentable(
+                    campaignView: campaignView, cellId: elementId, delegate: delegate)
                     .frame(width: geometry.size.width, height: height)
             }
-            .frame(height: max(0, campaignView.getHeight())) // Définit explicitement la hauteur
+            .frame(height: max(0, campaignView.getHeight()))
         } else {
             EmptyView().frame(height: 0)
         }

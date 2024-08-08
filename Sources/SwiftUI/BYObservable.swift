@@ -15,6 +15,15 @@ class BYObservable: ObservableObject, JavascriptCallback {
     @Published var inCollectionCampaigns: [String: InCollectionView] = [:]
     @Published var inPageCampaigns: [String: InPageView] = [:]
     
+    
+    func getCampaign(_ forId: String) -> InCollectionView? {
+        if let c = inCollectionCampaigns[forId] {
+            return c;
+        } else {
+            LogHelper.instance.showLog(logToShow: "No campaing for \(forId)")
+        }
+        return nil;
+    }
 
     // Fonction pour mettre à jour les campagnes InCollection
     func updateCollectionCampaigns(_ campaigns: [CampaignDTO]) {
@@ -23,7 +32,8 @@ class BYObservable: ObservableObject, JavascriptCallback {
             let elementId = campaign.inCollectionPlacementId
             for target in campaign.inCollectionTargets {
                 DispatchQueue.main.async {
-                    self.inCollectionCampaigns[elementId+"_"+target] =  InCollectionView(campaignDto: campaign, viewParent: nil, callBackJavascript: self)
+                    LogHelper.instance.showLog(logToShow: "Adding InCollectionCampaign for \(elementId+"_"+target)")
+                    self.inCollectionCampaigns[elementId+"_"+target] = InCollectionView(campaignDto: campaign, viewParent: nil, callBackJavascript: self)
                 }
             }
         }

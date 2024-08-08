@@ -54,19 +54,19 @@ class InCollectionView : CampaignView, CampaignViewProtocol {
         let containerView = cell.contentView;
         
         // Check le placement
-        if self.campaignDto.inCollectionPlacement == RelativePlacement.ABOVE {
+        if self.campaignDto.inCollectionPlacement       == RelativePlacement.ABOVE {
             
         }
-        else if self.campaignDto.inCollectionPlacement == RelativePlacement.LEFT {
+        else if self.campaignDto.inCollectionPlacement  == RelativePlacement.LEFT {
             
         }
-        else if self.campaignDto.inCollectionPlacement == RelativePlacement.RIGHT {
+        else if self.campaignDto.inCollectionPlacement  == RelativePlacement.RIGHT {
             
         }
-        if self.campaignDto.inCollectionPlacement == RelativePlacement.BELOW {
-            
+        if self.campaignDto.inCollectionPlacement       == RelativePlacement.BELOW {
+           // ViewUtils.insertViewAbove(parent: <#T##UIView#>, referenceView: <#T##UIView#>, newView: <#T##UIView#>)
         }
-        else if self.campaignDto.inCollectionPlacement == RelativePlacement.REPLACE {
+        else if self.campaignDto.inCollectionPlacement  == RelativePlacement.REPLACE {
             let (replacedView, originalConstraints, internalOriginalConstraints) = ViewUtils.replaceView(target:self.campaignDto.inCollectionPlacementId, on: containerView, with: stackView) ?? (nil, nil, nil)
             if replacedView != nil && originalConstraints != nil && internalOriginalConstraints != nil{
                 replacedViews[injectedViewTag] = replacedView!
@@ -74,6 +74,8 @@ class InCollectionView : CampaignView, CampaignViewProtocol {
                    originalConstraintsMap[replacedView!] = originalConstraints!
                    internalOriginalConstraintsMap[replacedView!] = internalOriginalConstraints!
                 }
+            } else {
+                LogHelper.instance.showLog(logToShow: "Cell to be replaced not found")
             }
             // Si on a des contraintes de la StackView, on les remets
             if originalStackConstraints != nil && stackView.superview != nil {
@@ -250,7 +252,6 @@ class InCollectionView : CampaignView, CampaignViewProtocol {
     func isTarget(_ elementId: String) -> Bool {
         return self.campaignDto.isTarget(elementId)
     }
-
 
     func isPlaceHolder(_ placeHolderId: String) -> Bool {
         return self.campaignDto.isPlaceHolder(placeHolderId)

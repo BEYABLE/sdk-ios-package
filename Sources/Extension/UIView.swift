@@ -10,7 +10,8 @@ import UIKit
 extension UIView {
     
     func viewWithRestorationIdentifier(_ identifier: String) -> UIView? {
-        if let restorationIdentifier = self.restorationIdentifier, restorationIdentifier == identifier{
+        //Checks if the identifier of the current view matches the given string
+        if self.accessibilityIdentifier == identifier || self.restorationIdentifier == identifier {
             return self
         }
         

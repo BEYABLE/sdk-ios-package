@@ -40,7 +40,7 @@ class InPageView : CampaignView, CampaignViewProtocol {
     func showInPageView(){
         // Avoid showing page two times
         campaignDto.alreadyShowen = true
-        if let foundView = findSubview(view: viewParent, withId: campaignDto.elementSelector ?? "") {
+        if let foundView = ViewUtils.findSubview(view: viewParent, withId: campaignDto.elementSelector ?? "") {
             // We handle adding InPage in StackView
             if let parentStackView = foundView.superview as? UIStackView {
                 if let index = parentStackView.arrangedSubviews.firstIndex(of: foundView) {
@@ -91,7 +91,7 @@ class InPageView : CampaignView, CampaignViewProtocol {
                     webView?.addObserver(self, forKeyPath: #keyPath(WKWebView.bounds), options: [.new, .old], context: nil)
                 }
                 else {
-                    LogHelper.instance.showLogForSDKDevelopper(
+                    LogHelper.instance.showLog(
                         logToShow: "The view with id \(campaignDto.elementSelector ?? "") was not found in the parent StackView.")
                 }
             }
@@ -137,29 +137,7 @@ class InPageView : CampaignView, CampaignViewProtocol {
         webView?.removeFromSuperview()
         webView = nil
     }
-    
-    /// This function try to find a view by his id
-    /// - Parameters:
-    ///   - view: The parent view containing the view with the id id
-    ///   - id:  the accessibilityIdentifier
-    /// - Returns: the view with the id : id
-    func findSubview(view : UIView , withId id: String) -> UIView? {
-        //Checks if the identifier of the current view matches the given string
-        if view.accessibilityIdentifier == id || view.restorationIdentifier == id{
-            return view
-        }
-        
-        // Recursive traversal of subviews.
-        for subview in view.subviews {
-            if let foundView = findSubview(view: subview, withId: id) {
-                return foundView
-            }
-        }
-        
-        // If no matching view is found, returns nil.
-        return nil
-    }
-        
+            
     func correctWebViewHeight() {
         webView.evaluateJavaScript("document.getElementsByClassName('by_outer')[0].offsetHeight") { [weak self] result, error in
             guard let self = self else { return }
