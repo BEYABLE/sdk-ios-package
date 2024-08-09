@@ -16,10 +16,13 @@ public struct BYInPagePlaceHolder: View {
     @ObservedObject var beyableObservable = BYObservable.shared
     @State private var webViewHeight: CGFloat = 0.0;
     
-    // Initialiseur public
-    public init(placeHolderId: String, defaultView: AnyView? = nil) {
+    public init<V: View>(placeHolderId: String, @ViewBuilder defaultView: () -> V?) {
         self.placeHolderId = placeHolderId
-        self.defaultView = defaultView;
+        if let view = defaultView() {
+            self.defaultView = AnyView(view)
+        } else {
+            self.defaultView = nil
+        }
         //self.callback = callback
     }
     

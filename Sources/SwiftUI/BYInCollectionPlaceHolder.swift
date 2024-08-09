@@ -11,15 +11,21 @@ public struct BYInCollectionPlaceHolder: View {
     let placeHolderId: String
     let elementId: String
     let delegate: OnCtaDelegate
+    let defaultView: AnyView?
     
     // Observable object
     @ObservedObject var beyableObservable = BYObservable.shared
     
     // Initialiseur public
-    public init(placeHolderId: String, elementId: String, delegate: OnCtaDelegate) {
+    public init<V: View>(placeHolderId: String, elementId: String, delegate: OnCtaDelegate,  @ViewBuilder defaultView: () -> V?) {
         self.placeHolderId = placeHolderId
         self.elementId = elementId
         self.delegate = delegate
+        if let view = defaultView() {
+            self.defaultView = AnyView(view)
+        } else {
+            self.defaultView = nil
+        }
     }
     
     public var body: some View {
@@ -32,7 +38,11 @@ public struct BYInCollectionPlaceHolder: View {
             }
             .frame(height: max(0, campaignView.getHeight()))
         } else {
-            EmptyView().frame(height: 0)
+            if let defaultView = defaultView {
+                defaultView
+            } else {
+                EmptyView().frame(height: 0)
+            }
         }
     }
     
