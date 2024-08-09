@@ -76,6 +76,7 @@ class InCollectionView : CampaignView, CampaignViewProtocol {
                    originalConstraintsMap[replacedView!] = originalConstraints!
                    internalOriginalConstraintsMap[replacedView!] = internalOriginalConstraints!
                 }
+                LogHelper.instance.showLog(logToShow: "ReplacedView: \(replacedView)")
                 LogHelper.instance.showLog(logToShow: "View replaced on cell '\(cell)'")
             } else {
                 LogHelper.instance.showLog(logToShow: "Cell to be replaced not found")
