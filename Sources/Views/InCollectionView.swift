@@ -49,6 +49,7 @@ class InCollectionView : CampaignView, CampaignViewProtocol {
     }
     
     func injectViewOnCell(cell: UITableViewCell, delegate: OnCtaDelegate?) {
+        LogHelper.instance.showLog(logToShow: "Start campaign injection on cell '\(cell)'")
         let injectedViewTag = "\(Int(arc4random_uniform(100000)))"
         stackView.restorationIdentifier = injectedViewTag
         let containerView = cell.contentView;
@@ -67,13 +68,15 @@ class InCollectionView : CampaignView, CampaignViewProtocol {
            // ViewUtils.insertViewAbove(parent: <#T##UIView#>, referenceView: <#T##UIView#>, newView: <#T##UIView#>)
         }
         else if self.campaignDto.inCollectionPlacement  == RelativePlacement.REPLACE {
-            let (replacedView, originalConstraints, internalOriginalConstraints) = ViewUtils.replaceView(target:self.campaignDto.inCollectionPlacementId, on: containerView, with: stackView) ?? (nil, nil, nil)
-            if replacedView != nil && originalConstraints != nil && internalOriginalConstraints != nil{
+            let (replacedView, originalConstraints, internalOriginalConstraints) = 
+            ViewUtils.replaceView(target:self.campaignDto.inCollectionPlacementId, on: containerView, with: stackView) ?? (nil, nil, nil)
+            if replacedView != nil && originalConstraints != nil && internalOriginalConstraints != nil {
                 replacedViews[injectedViewTag] = replacedView!
                 if originalConstraintsMap[replacedView!] == nil {
                    originalConstraintsMap[replacedView!] = originalConstraints!
                    internalOriginalConstraintsMap[replacedView!] = internalOriginalConstraints!
                 }
+                LogHelper.instance.showLog(logToShow: "View replaced on cell '\(cell)'")
             } else {
                 LogHelper.instance.showLog(logToShow: "Cell to be replaced not found")
             }
@@ -90,6 +93,7 @@ class InCollectionView : CampaignView, CampaignViewProtocol {
     }
     
     func removeInjectedView(cell: UITableViewCell, injectedView: UIView, injectedViewId: String) {
+        LogHelper.instance.showLog(logToShow: "Removing injected view '\(injectedViewId)' on cell '\(cell)'")
         originalStackConstraints = injectedView.constraints
         let replacedView = replacedViews[injectedViewId]!
         ViewUtils.restoreOriginalView(on: cell.contentView, oldView: injectedView, originalView: replacedView, originalConstraints: self.originalConstraintsMap[replacedView]!, internalOriginalConstraints: self.internalOriginalConstraintsMap[replacedView]!)

@@ -184,13 +184,15 @@ public class BeyableSDK : NSObject, WKNavigationDelegate, CallBackService{
     // MARK: - UITableView cells binding for InCollection campaigns
     
     public func sendCellBinded(url: String, cell: UITableViewCell, elementId: String, callback: OnCtaDelegate?) {
+        LogHelper.instance.showLog(logToShow: "Binding cell on page '\(url)' for element '\(elementId)'")
         let displayer = self.getOrCreateDisplayer(for: url, and: nil)
         displayer.cellBinded(cell: cell, elementId: elementId, callback: callback)
     }
     
     public func sendCellUnbinded(url: String, cell: UITableViewCell, elementId: String) {
-       let displayer = self.getOrCreateDisplayer(for: url, and: nil)
-       displayer.cellUnbinded(cell: cell, elementId: elementId)
+        LogHelper.instance.showLog(logToShow: "Uninding cell on page '\(url)' for element '\(elementId)'")
+        let displayer = self.getOrCreateDisplayer(for: url, and: nil)
+        displayer.cellUnbinded(cell: cell, elementId: elementId)
     }
     
     ///
@@ -242,8 +244,10 @@ public class BeyableSDK : NSObject, WKNavigationDelegate, CallBackService{
         
         // Vérifier si l'objet existe déjà dans le NSMapTable
         if let displayer = displayers.object(forKey: nsKey) {
+            LogHelper.instance.showLog(logToShow: "Getting displayer for '\(key)'")
             return displayer
         } else {
+            LogHelper.instance.showLog(logToShow: "Creating displayer for '\(key)'")
             // Si l'objet n'existe pas, en créer un nouveau
             let newDisplayer = BYHandleViews(currentView: view)
             // Ajouter le nouvel objet à la NSMapTable

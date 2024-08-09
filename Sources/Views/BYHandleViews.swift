@@ -211,9 +211,11 @@ public class BYHandleViews : NSObject, JavascriptCallback {
                     let campaignView: InCollectionView
                     let viewKey = "\(elementId)_\(campaign.campagnId)"
                     if !self.inCollectionViews.keys.contains(viewKey) {
+                        LogHelper.instance.showLog(logToShow: "Creating campaign view for '\(viewKey)'")
                         campaignView = self.createNewInCollectionView(cell.contentView, campaign)!
                         self.inCollectionViews[viewKey] = campaignView
                     } else {
+                        LogHelper.instance.showLog(logToShow: "Retriving campaign view for '\(viewKey)'")
                         campaignView = self.inCollectionViews[viewKey]!
                     }
                     campaignView.injectViewOnCell(cell: cell, delegate: callback)

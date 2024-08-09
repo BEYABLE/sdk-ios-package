@@ -112,8 +112,7 @@ class ViewUtils {
         
         parent.setNeedsLayout()
         parent.layoutIfNeeded()
-        
-        
+                
         return (originalConstraints, internalOriginalConstraints)
     }
     
@@ -139,6 +138,7 @@ class ViewUtils {
     static func checkViewHierarchy(view1: UIView, view2: UIView) -> Bool {
         return view1.isDescendant(of: view2) || view2.isDescendant(of: view1)
     }
+    
     static func insertViewAbove(parent: UIView, referenceView: UIView, newView: UIView) {
         guard let referenceIndex = parent.subviews.firstIndex(of: referenceView) else {
             return
