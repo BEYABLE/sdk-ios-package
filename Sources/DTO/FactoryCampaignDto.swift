@@ -65,21 +65,21 @@ class FactoryCampaignDto {
             if placement.caseInsensitiveCompare("Above") == .orderedSame ||
                 placement.caseInsensitiveCompare("AdjacentBeforeBegin") == .orderedSame ||
                 placement.caseInsensitiveCompare("AdjacentBeforeEnd") == .orderedSame {
-                campaign.inCollectionPlacement = RelativePlacement.ABOVE
+                campaign.positionInPage = RelativePlacement.ABOVE
             }
             else if placement.caseInsensitiveCompare("Right") == .orderedSame {
-                campaign.inCollectionPlacement = RelativePlacement.RIGHT
+                campaign.positionInPage = RelativePlacement.RIGHT
             }
             else if placement.caseInsensitiveCompare("Below") == .orderedSame ||
                         placement.caseInsensitiveCompare("AdjacentAfterBegin") == .orderedSame ||
                         placement.caseInsensitiveCompare("AdjacentAfterEnd") == .orderedSame {
-                campaign.inCollectionPlacement = RelativePlacement.BELOW
+                campaign.positionInPage = RelativePlacement.BELOW
             }
             else if placement.caseInsensitiveCompare("Left") == .orderedSame {
-                campaign.inCollectionPlacement = RelativePlacement.LEFT
+                campaign.positionInPage = RelativePlacement.LEFT
             }
             else if placement.caseInsensitiveCompare("Replace") == .orderedSame {
-                campaign.inCollectionPlacement = RelativePlacement.REPLACE
+                campaign.positionInPage = RelativePlacement.REPLACE
             }
         }
         // In collection Components
@@ -88,19 +88,19 @@ class FactoryCampaignDto {
             campaign.inCollectionPlacementId = (campagnResponse.inCollectionElement?.placementSelector)!
             let placement = (campagnResponse.inCollectionElement?.relativePlacement)!
             if placement.caseInsensitiveCompare("Above") == .orderedSame {
-                campaign.positionInPage = RelativePlacement.ABOVE
+                campaign.inCollectionPlacement = RelativePlacement.ABOVE
             }
             else if placement.caseInsensitiveCompare("Right") == .orderedSame {
-                campaign.positionInPage = RelativePlacement.RIGHT
+                campaign.inCollectionPlacement = RelativePlacement.RIGHT
             }
             else if placement.caseInsensitiveCompare("Below") == .orderedSame {
-                campaign.positionInPage = RelativePlacement.BELOW
+                campaign.inCollectionPlacement = RelativePlacement.BELOW
             }
             else if placement.caseInsensitiveCompare("Left") == .orderedSame {
-                campaign.positionInPage = RelativePlacement.LEFT
+                campaign.inCollectionPlacement = RelativePlacement.LEFT
             }
             else if placement.caseInsensitiveCompare("Replace") == .orderedSame {
-                campaign.positionInPage = RelativePlacement.REPLACE
+                campaign.inCollectionPlacement = RelativePlacement.REPLACE
             }
         }
         
