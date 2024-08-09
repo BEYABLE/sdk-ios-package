@@ -39,7 +39,7 @@ class InPageView : CampaignView, CampaignViewProtocol {
     /// Depending on the parent view, the complexity of the processing will vary. Currently, we are only handling the case of a parent stackView.
     func showInPageView(){
         // Avoid showing page two times
-        campaignDto.alreadyShowen = true
+        //campaignDto.alreadyShowen = true
         if let foundView = ViewUtils.findSubview(view: viewParent, withId: campaignDto.elementSelector ?? "") {
             // We handle adding InPage in StackView
             if let parentStackView = foundView.superview as? UIStackView {

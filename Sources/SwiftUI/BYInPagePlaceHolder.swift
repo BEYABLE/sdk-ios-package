@@ -10,14 +10,16 @@ import WebKit
 
 public struct BYInPagePlaceHolder: View {
     let placeHolderId: String
+    let defaultView: AnyView?
     
     // Observable object
     @ObservedObject var beyableObservable = BYObservable.shared
     @State private var webViewHeight: CGFloat = 0.0;
     
     // Initialiseur public
-    public init(placeHolderId: String) {
+    public init(placeHolderId: String, defaultView: AnyView? = nil) {
         self.placeHolderId = placeHolderId
+        self.defaultView = defaultView;
         //self.callback = callback
     }
     
@@ -33,7 +35,11 @@ public struct BYInPagePlaceHolder: View {
                 }
         }
         else {
-            EmptyView().frame(height: 0)
+            if let defaultView = defaultView {
+                defaultView
+            } else {
+                EmptyView().frame(height: 0)
+            }
         }
     }
 }

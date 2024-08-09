@@ -81,7 +81,7 @@ class InCollectionView : CampaignView, CampaignViewProtocol {
             } else {
                 LogHelper.instance.showLog(logToShow: "Cell to be replaced not found")
             }
-            // Si on a des contraintes de la StackView, on les remets
+            // Si on a des contraintes de notre bannerView, on les remets
             if originalStackConstraints != nil && stackView.superview != nil {
                 // Restore original constraints
                 NSLayoutConstraint.activate(originalStackConstraints!)

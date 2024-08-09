@@ -132,6 +132,17 @@ class CampaignView : NSObject, WKNavigationDelegate, WKScriptMessageHandler {
      */
     
     public func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+        if(self.campaignDto?.typeCampagne == .HEADER){
+            self.campaignViewProtocol?.showStickyHeaderView()
+        }
+        else if(self.campaignDto?.typeCampagne == .OVERLAY){
+            // Overlay Already Added
+            
+        }
+        else if(self.campaignDto?.typeCampagne == .IN_PAGE){
+            self.campaignViewProtocol?.showInPageView()
+        }
+        
         var jsCode = ""
         if campaignDto.displays.count > 0 {
             jsCode = campaignDto.displays[0].associatedJavascript
@@ -153,16 +164,7 @@ class CampaignView : NSObject, WKNavigationDelegate, WKScriptMessageHandler {
                 LogHelper.instance.showLogForSDKDevelopper(logToShow: "Error injecting JavaScript: \(error)")
             } else {
                 LogHelper.instance.showLogForSDKDevelopper(logToShow: "JavaScript injected successfully")
-                if(self.campaignDto?.typeCampagne == .HEADER){
-                    self.campaignViewProtocol?.showStickyHeaderView()
-                }
-                else if(self.campaignDto?.typeCampagne == .OVERLAY){
-                    // Overlay Already Added
-                    
-                }
-                else if(self.campaignDto?.typeCampagne == .IN_PAGE){
-                    self.campaignViewProtocol?.showInPageView()
-                }
+                
             }
         })
     }

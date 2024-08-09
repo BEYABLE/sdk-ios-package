@@ -53,13 +53,27 @@ class ViewUtils {
         var originalConstraints = [NSLayoutConstraint]()
         var internalOriginalConstraints = [NSLayoutConstraint]()
         
+        
         // Save the original constraints if not already saved
         let constraintsToRemove = superview.constraints.filter { constraint in
             (constraint.firstItem as? UIView == oldView) || (constraint.secondItem as? UIView == oldView)
         }
+        //NSLayoutConstraint.deactivate(originalConstraints)
         originalConstraints = constraintsToRemove
         internalOriginalConstraints = oldView.constraints
+        //NSLayoutConstraint.deactivate(internalOriginalConstraints)
                 
+        // Filtrer les contraintes internes de oldView pour ne garder que celles qui concernent ses sous-vues
+        let filteredInternalConstraints = internalOriginalConstraints.filter { constraint in
+            if let firstItem = constraint.firstItem as? UIView, firstItem.isDescendant(of: oldView) && (constraint.secondItem == nil || (constraint.secondItem as? UIView)?.isDescendant(of: oldView) == true) {
+                return true
+            }
+            if let secondItem = constraint.secondItem as? UIView, secondItem.isDescendant(of: oldView) && (constraint.firstItem == nil || (constraint.firstItem as? UIView)?.isDescendant(of: oldView) == true) {
+                return true
+            }
+            return false
+        }
+        
         // Get the old view's width
         let oldViewFrame = oldView.frame
         
@@ -91,8 +105,8 @@ class ViewUtils {
         }
         NSLayoutConstraint.activate(newConstraints)
         
-        // Activate internal constraints if any
-        let newInternalConstraints = internalOriginalConstraints.compactMap { constraint -> NSLayoutConstraint? in
+        // Activer les contraintes internes filtrées
+        let newInternalConstraints = filteredInternalConstraints.compactMap { constraint -> NSLayoutConstraint? in
             guard let firstItem = (constraint.firstItem as? UIView == oldView) ? newView : constraint.firstItem,
                   let secondItem = (constraint.secondItem as? UIView == oldView) ? newView : constraint.secondItem else {
                 return nil
