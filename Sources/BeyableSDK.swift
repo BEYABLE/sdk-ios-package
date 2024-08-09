@@ -24,7 +24,7 @@ public class BeyableSDK : NSObject, WKNavigationDelegate, CallBackService{
     private var subscriptions = Set<AnyCancellable>()
     
     /// Handles displaying views campaing
-    private let displayers  = NSMapTable<NSString, BYHandleViews>(keyOptions: .weakMemory, valueOptions: .strongMemory)
+    private let displayers  = NSMapTable<NSString, BYHandleViews>(keyOptions: .strongMemory, valueOptions: .strongMemory)
 
     /**
      This function initializes the Beyable SDK.
@@ -241,6 +241,7 @@ public class BeyableSDK : NSObject, WKNavigationDelegate, CallBackService{
     
     private func getOrCreateDisplayer(for key:String, and view: UIView?) -> BYHandleViews {
         let nsKey = key as NSString
+        
         
         // Vérifier si l'objet existe déjà dans le NSMapTable
         if let displayer = displayers.object(forKey: nsKey) {
