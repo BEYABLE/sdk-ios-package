@@ -61,7 +61,6 @@ class InPageView : CampaignView, CampaignViewProtocol {
                         else{
                             indexToInsertView = index
                         }
-                        
                     }
                     // Créez une vue conteneur
                     containerView = UIView()
@@ -102,6 +101,9 @@ class InPageView : CampaignView, CampaignViewProtocol {
                     }
                     else if(campaignDto.positionInPage == RelativePlacement.ABOVE){
                         ViewUtils.insertViewAbove(parent: foundView.superview!, referenceView: foundView, newView: webView)
+                    }
+                    else if(campaignDto.positionInPage == RelativePlacement.REPLACE) {
+                        ViewUtils.replaceView(on: foundView.superview!, oldView: foundView, with: webView)
                     }
                 } else {
                     LogHelper.instance.showLog(logToShow: "No superview found on referenced view")

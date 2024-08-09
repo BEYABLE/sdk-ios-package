@@ -88,19 +88,19 @@ class FactoryCampaignDto {
             campaign.inCollectionPlacementId = (campagnResponse.inCollectionElement?.placementSelector)!
             let placement = (campagnResponse.inCollectionElement?.relativePlacement)!
             if placement.caseInsensitiveCompare("Above") == .orderedSame {
-                campaign.inCollectionPlacement = RelativePlacement.ABOVE
+                campaign.positionInPage = RelativePlacement.ABOVE
             }
             else if placement.caseInsensitiveCompare("Right") == .orderedSame {
-                campaign.inCollectionPlacement = RelativePlacement.RIGHT
+                campaign.positionInPage = RelativePlacement.RIGHT
             }
             else if placement.caseInsensitiveCompare("Below") == .orderedSame {
-                campaign.inCollectionPlacement = RelativePlacement.BELOW
+                campaign.positionInPage = RelativePlacement.BELOW
             }
             else if placement.caseInsensitiveCompare("Left") == .orderedSame {
-                campaign.inCollectionPlacement = RelativePlacement.LEFT
+                campaign.positionInPage = RelativePlacement.LEFT
             }
             else if placement.caseInsensitiveCompare("Replace") == .orderedSame {
-                campaign.inCollectionPlacement = RelativePlacement.REPLACE
+                campaign.positionInPage = RelativePlacement.REPLACE
             }
         }
         

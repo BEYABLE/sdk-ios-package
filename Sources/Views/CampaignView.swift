@@ -132,16 +132,14 @@ class CampaignView : NSObject, WKNavigationDelegate, WKScriptMessageHandler {
      */
     
     public func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+        // If is a header or InPage, we need to launch the show
         if(self.campaignDto?.typeCampagne == .HEADER){
             self.campaignViewProtocol?.showStickyHeaderView()
-        }
-        else if(self.campaignDto?.typeCampagne == .OVERLAY){
-            // Overlay Already Added
-            
         }
         else if(self.campaignDto?.typeCampagne == .IN_PAGE){
             self.campaignViewProtocol?.showInPageView()
         }
+        
         
         var jsCode = ""
         if campaignDto.displays.count > 0 {
