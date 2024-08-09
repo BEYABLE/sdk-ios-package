@@ -42,59 +42,59 @@ class InPageView : CampaignView, CampaignViewProtocol {
         //campaignDto.alreadyShowen = true
         if let foundView = ViewUtils.findSubview(view: viewParent, withId: campaignDto.elementSelector ?? "") {
             // We handle adding InPage in StackView
-            if let parentStackView = foundView.superview as? UIStackView {
-                if let index = parentStackView.arrangedSubviews.firstIndex(of: foundView) {
-                    var indexToInsertView = 0
-                    // For the replace, we delete the element and replace it
-                    if(campaignDto.positionInPage == RelativePlacement.REPLACE){
-                        indexToInsertView = index
-                        foundView.removeFromSuperview()
-                    }
-                    else if(campaignDto.positionInPage == RelativePlacement.BELOW){
-                        // We need to inject after this one for 'after' option
-                        indexToInsertView = index + 1
-                    }
-                    else if(campaignDto.positionInPage == RelativePlacement.ABOVE){
-                        if(index == 0) {
-                            indexToInsertView = 0
-                        }
-                        else{
-                            indexToInsertView = index
-                        }
-                    }
-                    // Créez une vue conteneur
-                    containerView = UIView()
-                    containerView.translatesAutoresizingMaskIntoConstraints = false
-                    // Ajoutez la webView au conteneur
-                    containerView.addSubview(webView)
-                    // Désactiver la gestion automatique des contraintes pour la webView
-                    webView.translatesAutoresizingMaskIntoConstraints = false
-                    // Contrainte de hauteur pour la webView (celle-ci sera mise à jour dynamiquement)
-                    heightConstraint = webView.heightAnchor.constraint(equalToConstant: 0)
-                    heightConstraint.isActive = true
-                    
-                    // Ajouter des contraintes pour attacher la webView au conteneur
-                    NSLayoutConstraint.activate([
-                        webView.topAnchor.constraint(equalTo: containerView.topAnchor),
-                        webView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor),
-                        webView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
-                        webView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor)
-                    ])
-                    parentStackView.insertArrangedSubview(containerView, at: indexToInsertView)
-                    
-                    parentStackView.layoutIfNeeded()
-                    
-                    correctWebViewHeight()
-                   
-                    // Ajouter un observateur de propriété
-                    webView?.addObserver(self, forKeyPath: #keyPath(WKWebView.bounds), options: [.new, .old], context: nil)
-                }
-                else {
-                    LogHelper.instance.showLog(
-                        logToShow: "The view with id \(campaignDto.elementSelector ?? "") was not found in the parent StackView.")
-                }
-            }
-            else {
+//            if let parentStackView = foundView.superview as? UIStackView {
+//                if let index = parentStackView.arrangedSubviews.firstIndex(of: foundView) {
+//                    var indexToInsertView = 0
+//                    // For the replace, we delete the element and replace it
+//                    if(campaignDto.positionInPage == RelativePlacement.REPLACE){
+//                        indexToInsertView = index
+//                        foundView.removeFromSuperview()
+//                    }
+//                    else if(campaignDto.positionInPage == RelativePlacement.BELOW){
+//                        // We need to inject after this one for 'after' option
+//                        indexToInsertView = index + 1
+//                    }
+//                    else if(campaignDto.positionInPage == RelativePlacement.ABOVE){
+//                        if(index == 0) {
+//                            indexToInsertView = 0
+//                        }
+//                        else{
+//                            indexToInsertView = index
+//                        }
+//                    }
+//                    // Créez une vue conteneur
+//                    containerView = UIView()
+//                    containerView.translatesAutoresizingMaskIntoConstraints = false
+//                    // Ajoutez la webView au conteneur
+//                    containerView.addSubview(webView)
+//                    // Désactiver la gestion automatique des contraintes pour la webView
+//                    webView.translatesAutoresizingMaskIntoConstraints = false
+//                    // Contrainte de hauteur pour la webView (celle-ci sera mise à jour dynamiquement)
+//                    heightConstraint = webView.heightAnchor.constraint(equalToConstant: 0)
+//                    heightConstraint.isActive = true
+//                    
+//                    // Ajouter des contraintes pour attacher la webView au conteneur
+//                    NSLayoutConstraint.activate([
+//                        webView.topAnchor.constraint(equalTo: containerView.topAnchor),
+//                        webView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor),
+//                        webView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
+//                        webView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor)
+//                    ])
+//                    parentStackView.insertArrangedSubview(containerView, at: indexToInsertView)
+//                    
+//                    parentStackView.layoutIfNeeded()
+//                    
+//                    correctWebViewHeight()
+//                   
+//                    // Ajouter un observateur de propriété
+//                    webView?.addObserver(self, forKeyPath: #keyPath(WKWebView.bounds), options: [.new, .old], context: nil)
+//                }
+//                else {
+//                    LogHelper.instance.showLog(
+//                        logToShow: "The view with id \(campaignDto.elementSelector ?? "") was not found in the parent StackView.")
+//                }
+//            }
+//            else {
                 if (foundView.superview != nil) {
                     if(campaignDto.positionInPage == RelativePlacement.BELOW){
                         ViewUtils.insertViewBelow(parent: foundView.superview!, referenceView: foundView, newView: webView)
@@ -108,7 +108,7 @@ class InPageView : CampaignView, CampaignViewProtocol {
                 } else {
                     LogHelper.instance.showLog(logToShow: "No superview found on referenced view")
                 }
-            }
+//            }
         } else {
             LogHelper.instance.showLog(logToShow: "No View was find with this id = \(campaignDto.elementSelector ?? "")")
         }
