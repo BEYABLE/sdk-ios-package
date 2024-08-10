@@ -64,23 +64,8 @@ class CampaignView : NSObject, WKNavigationDelegate, WKScriptMessageHandler {
     /// - Returns: The instance of webView just created and configurated
     func initWebView(campaignCallBack : CampaignViewProtocol?) -> WKWebView {
         self.campaignViewProtocol = campaignCallBack
-            
-        // Some time after.
-        // let webView = self.warmUper.dequeue()
-        
-       let contentController = WKUserContentController();
-       contentController.add(
-           self,
-           name: "callbackHandler"
-       )
-       
-       let config = WKWebViewConfiguration()
-       config.userContentController = contentController
-       
-       
-       // End Configuration
-       
-       let webView = WKWebView(frame: UIView().bounds, configuration: config)
+        let webView = self.warmUper.dequeue()
+        LogHelper.instance.showLog(logToShow: "Initializing webview \(webView)")
         
         webView.translatesAutoresizingMaskIntoConstraints = false
         webView.isOpaque = false;
@@ -98,7 +83,7 @@ class CampaignView : NSObject, WKNavigationDelegate, WKScriptMessageHandler {
             let display = campaignDto.displays[0]
             var htmlContent = display.content
             /// hmmmmmmm
-            htmlContent += "\n<script>console.log(\"This is a message from JavaScript!\");\(display.associatedJavascript)</script>"
+            // htmlContent += "\n<script>console.log(\"This is a message from JavaScript!\");\(display.associatedJavascript)</script>"
             webView.loadHTMLString(display.content, baseURL: nil)
         }
         
@@ -144,7 +129,7 @@ class CampaignView : NSObject, WKNavigationDelegate, WKScriptMessageHandler {
         var jsCode = ""
         if campaignDto.displays.count > 0 {
             jsCode = campaignDto.displays[0].associatedJavascript
-            LogHelper.instance.showLog(logToShow: jsCode)
+            //LogHelper.instance.showLog(logToShow: jsCode)
         }
         var byDataString = "{}";
         var byContextDataString = "{}";
@@ -161,8 +146,7 @@ class CampaignView : NSObject, WKNavigationDelegate, WKScriptMessageHandler {
             if let error = error {
                 LogHelper.instance.showLogForSDKDevelopper(logToShow: "Error injecting JavaScript: \(error)")
             } else {
-                LogHelper.instance.showLogForSDKDevelopper(logToShow: "JavaScript injected successfully")
-                
+                LogHelper.instance.showLogForSDKDevelopper(logToShow: "JavaScript injected successfully")                
             }
         })
     }

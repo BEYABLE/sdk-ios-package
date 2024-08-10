@@ -16,6 +16,7 @@ class ViewUtils {
     ///   - id:  the accessibilityIdentifier
     /// - Returns: the view with the id : id
     static func findSubview(view : UIView , withId id: String) -> UIView? {
+        LogHelper.instance.showLog(logToShow: "Checking \(view) with aId: \(view.accessibilityIdentifier) and rId: \(view.restorationIdentifier)")
         //Checks if the identifier of the current view matches the given string
         if view.accessibilityIdentifier == id || view.restorationIdentifier == id{
             return view

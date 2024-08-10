@@ -111,7 +111,7 @@ class SendViewService : NSObject, WKNavigationDelegate{
                     LogHelper.instance.showLogForSDKDevelopper(logToShow: "Campagins received from request \(EndpointUrl.display.rawValue) is empty")
                     return
                 }
-                LogHelper.instance.showLogForSDKDevelopper(logToShow: "Campaigns received \(campaings)")
+                //LogHelper.instance.showLogForSDKDevelopper(logToShow: "Campaigns received \(campaings)")
                 
                 FactoryCampaignDto.instance.attributes = attributes
                 

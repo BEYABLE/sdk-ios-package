@@ -153,6 +153,10 @@ public class BYHandleViews : NSObject, JavascriptCallback {
     ///   - listCampagns: listCampaigns to show
     ///   - callBackService : Used to call function like sendAck or sendClose
     func setCampagns(listCampagns : [CampaignDTO], callBackService : CallBackService? = nil){
+        LogHelper.instance.showLog(logToShow: "Settings \(listCampagns.count) campaigns on displayer : ")
+        for campaign in listCampagns {
+            LogHelper.instance.showLog(logToShow: "\tCampaign: \(campaign.campaignName)\nType: \(campaign.typeCampagne)")
+        }
         if let a = callBackService {
             self.callBackService = a
         }

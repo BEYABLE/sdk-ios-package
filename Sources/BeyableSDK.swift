@@ -241,11 +241,10 @@ public class BeyableSDK : NSObject, WKNavigationDelegate, CallBackService{
     
     private func getOrCreateDisplayer(for key:String, and view: UIView?) -> BYHandleViews {
         let nsKey = key as NSString
-        
-        
         // Vérifier si l'objet existe déjà dans le NSMapTable
         if let displayer = displayers.object(forKey: nsKey) {
             LogHelper.instance.showLog(logToShow: "Getting displayer for '\(key)'")
+            displayer.currentView = view
             return displayer
         } else {
             LogHelper.instance.showLog(logToShow: "Creating displayer for '\(key)'")

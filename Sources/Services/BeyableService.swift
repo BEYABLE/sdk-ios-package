@@ -50,7 +50,7 @@ class BeyableService {
             self.enqueueRequest(endpoint: endpoint, body: body) { (result: Result<T, BeyableDataAPIError>) in
                 switch result {
                 case .success(let value):
-                    LogHelper.instance.showLog(logToShow: "\(value)")
+                    //LogHelper.instance.showLog(logToShow: "\(value)")
                     promise(.success(value))
                 case .failure(let error):
                     promise(.failure(error))
@@ -77,14 +77,13 @@ class BeyableService {
         request.setValue("application/json", forHTTPHeaderField: "Accept")
         request.setValue(currentLanguageCode, forHTTPHeaderField: "AcceptLanguage")
         if let bundleIdentifier = Bundle.main.bundleIdentifier {
-            request.setValue("UrlReferrer", forHTTPHeaderField: bundleIdentifier)
+            request.setValue(bundleIdentifier, forHTTPHeaderField: "UrlReferrer")
         }
         if let name = Bundle.main.applicationName {
-            request.setValue("UserHostAddress", forHTTPHeaderField: name)
+            request.setValue(name, forHTTPHeaderField: "UserHostAddress")
         }
         request.setValue(DataStorageHelper.getData(type: String.self, forKey: .apiKey), forHTTPHeaderField: "Authorization")
-        
-        
+                
         let encoder = JSONEncoder()
         
         do {
