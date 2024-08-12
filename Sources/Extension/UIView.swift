@@ -41,4 +41,29 @@ extension UIView {
             }
         }
     }
+    
+    // Retourne toutes les contraintes associées à la vue.
+    var allConstraints: [NSLayoutConstraint] {
+        var constraints = [NSLayoutConstraint]()
+        constraints.append(contentsOf: self.constraints)
+        if let superview = self.superview {
+            constraints.append(contentsOf: superview.constraints.filter {
+                ($0.firstItem as? UIView == self || $0.secondItem as? UIView == self)
+            })
+        }
+        return constraints
+    }
+
+    // Fonction pour retirer les contraintes conflictuelles
+    func removeConflictingConstraints() {
+        let allConstraints = self.allConstraints
+        let conflictingConstraints = allConstraints.filter { constraint in
+            guard let firstItem = constraint.firstItem as? UIView,
+                  let secondItem = constraint.secondItem as? UIView else {
+                return false
+            }
+            return !firstItem.isDescendant(of: self) || !secondItem.isDescendant(of: self)
+        }
+        self.removeConstraints(conflictingConstraints)
+    }
 }
