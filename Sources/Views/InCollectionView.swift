@@ -19,11 +19,15 @@ class InCollectionView : CampaignView, CampaignViewProtocol {
     /// True if we are on a view SwiftUi
     var swiftUiCurrentView = false
     var currentViewController : UIViewController!
+    
+    var isStackView = false;
+    
     var replacedViews: [String: UIView] = [String: UIView]()
     var originalConstraintsMap = [UIView: [NSLayoutConstraint]]()
     var internalOriginalConstraintsMap = [UIView: [NSLayoutConstraint]]()
     var originalStackConstraints : [NSLayoutConstraint]?
-    
+    var addedOnStackViews = [UIView]()
+        
     var ctaUrlWrappers = [UrlWrapper]()
     var ctaCallbackWrappers = [CallbackWrapper]()
     
@@ -54,53 +58,91 @@ class InCollectionView : CampaignView, CampaignViewProtocol {
         stackView.restorationIdentifier = injectedViewTag
         let containerView = cell.contentView;
         
-        // Check le placement
-        if self.campaignDto.inCollectionPlacement       == RelativePlacement.ABOVE {
-            
-        }
-        else if self.campaignDto.inCollectionPlacement  == RelativePlacement.LEFT {
-            
-        }
-        else if self.campaignDto.inCollectionPlacement  == RelativePlacement.RIGHT {
-            
-        }
-        if self.campaignDto.inCollectionPlacement       == RelativePlacement.BELOW {
-           // ViewUtils.insertViewAbove(parent: <#T##UIView#>, referenceView: <#T##UIView#>, newView: <#T##UIView#>)
-        }
-        else if self.campaignDto.inCollectionPlacement  == RelativePlacement.REPLACE {
-            let (replacedView, originalConstraints, internalOriginalConstraints) = 
-            ViewUtils.replaceView(target:self.campaignDto.inCollectionPlacementId, on: containerView, with: stackView) ?? (nil, nil, nil)
-            if replacedView != nil && originalConstraints != nil && internalOriginalConstraints != nil {
-                replacedViews[injectedViewTag] = replacedView!
-                if originalConstraintsMap[replacedView!] == nil {
-                   originalConstraintsMap[replacedView!] = originalConstraints!
-                   internalOriginalConstraintsMap[replacedView!] = internalOriginalConstraints!
+        // Check if we are on stackview or not
+        if let foundView = ViewUtils.findSubview(view: viewParent, withId: self.campaignDto.inCollectionPlacementId) {
+            // We handle adding InPage in StackView
+            if let parentStackView = foundView.superview as? UIStackView {
+                isStackView = true
+                if let index = parentStackView.arrangedSubviews.firstIndex(of: foundView) {
+                    var indexToInsertView = 0
+                    // For the replace, we delete the element and replace it
+                    if(campaignDto.positionInPage == RelativePlacement.REPLACE) {
+                        indexToInsertView = index
+                        foundView.isHidden = true
+                    }
+                    else if(campaignDto.positionInPage == RelativePlacement.BELOW) {
+                        // We need to inject after this one for 'after' option
+                        indexToInsertView = index + 1
+                    }
+                    else if(campaignDto.positionInPage == RelativePlacement.ABOVE) {
+                        if(index == 0) {
+                            indexToInsertView = 0
+                        }
+                        else{
+                            indexToInsertView = index
+                        }
+                    }
+                    stackView.translatesAutoresizingMaskIntoConstraints = false
+                    parentStackView.insertArrangedSubview(stackView, at: indexToInsertView)
+                    parentStackView.layoutIfNeeded()
                 }
-                LogHelper.instance.showLog(logToShow: "ReplacedView: \(replacedView)")
-                LogHelper.instance.showLog(logToShow: "View replaced on cell '\(cell)'")
             } else {
-                LogHelper.instance.showLog(logToShow: "Cell to be replaced not found")
+                // Check le placement
+                if self.campaignDto.inCollectionPlacement       == RelativePlacement.ABOVE {
+                    
+                }
+                else if self.campaignDto.inCollectionPlacement  == RelativePlacement.LEFT {
+                    
+                }
+                else if self.campaignDto.inCollectionPlacement  == RelativePlacement.RIGHT {
+                    
+                }
+                if self.campaignDto.inCollectionPlacement       == RelativePlacement.BELOW {
+                    
+                }
+                else if self.campaignDto.inCollectionPlacement  == RelativePlacement.REPLACE {
+                    let (replacedView, originalConstraints, internalOriginalConstraints) =
+                    ViewUtils.replaceView(target:self.campaignDto.inCollectionPlacementId, on: containerView, with: stackView) ?? (nil, nil, nil)
+                    if replacedView != nil && originalConstraints != nil && internalOriginalConstraints != nil {
+                        replacedViews[injectedViewTag] = replacedView!
+                        if originalConstraintsMap[replacedView!] == nil {
+                            originalConstraintsMap[replacedView!] = originalConstraints!
+                            internalOriginalConstraintsMap[replacedView!] = internalOriginalConstraints!
+                        }
+                        LogHelper.instance.showLog(logToShow: "ReplacedView: \(replacedView)")
+                        LogHelper.instance.showLog(logToShow: "View replaced on cell '\(cell)'")
+                    } else {
+                        LogHelper.instance.showLog(logToShow: "Cell to be replaced not found")
+                    }
+                    // Si on a des contraintes de notre bannerView, on les remets
+                    if originalStackConstraints != nil && stackView.superview != nil {
+                        // Restore original constraints
+                        NSLayoutConstraint.activate(originalStackConstraints!)
+                        stackView.superview!.setNeedsLayout()
+                        stackView.superview!.layoutIfNeeded()
+                    }
+                }
             }
-            // Si on a des contraintes de notre bannerView, on les remets
-            if originalStackConstraints != nil && stackView.superview != nil {
-                // Restore original constraints
-                NSLayoutConstraint.activate(originalStackConstraints!)
-                stackView.superview!.setNeedsLayout()
-                stackView.superview!.layoutIfNeeded()
-            }
-            // Set callback if needed
-            setCtaDelegate(injectedViewTag, delegate)
         }
+        // Set callback if needed
+        setCtaDelegate(injectedViewTag, delegate)
     }
     
     func removeInjectedView(cell: UITableViewCell, injectedView: UIView, injectedViewId: String) {
         LogHelper.instance.showLog(logToShow: "Removing injected view '\(injectedViewId)' on cell '\(cell)'")
-        originalStackConstraints = injectedView.constraints
-        let replacedView = replacedViews[injectedViewId]!
-        ViewUtils.restoreOriginalView(on: cell.contentView, oldView: injectedView, originalView: replacedView, originalConstraints: self.originalConstraintsMap[replacedView]!, internalOriginalConstraints: self.internalOriginalConstraintsMap[replacedView]!)
-        self.replacedViews.removeValue(forKey: injectedViewId)
-        //campaignView.originalConstraintsMap.removeValue(forKey: replacedView)
-        //campaignView.originalConstraintsMap.removeValue(forKey: replacedView)
+        if isStackView {
+            stackView.removeFromSuperview()
+            if let foundView = ViewUtils.findSubview(view: viewParent, withId: campaignDto.elementSelector ?? "") {
+                foundView.isHidden = false
+            }
+        } else {
+            originalStackConstraints = injectedView.constraints
+            let replacedView = replacedViews[injectedViewId]!
+            ViewUtils.restoreOriginalView(on: cell.contentView, oldView: injectedView, originalView: replacedView, originalConstraints: self.originalConstraintsMap[replacedView]!, internalOriginalConstraints: self.internalOriginalConstraintsMap[replacedView]!)
+            self.replacedViews.removeValue(forKey: injectedViewId)
+            //campaignView.originalConstraintsMap.removeValue(forKey: replacedView)
+            //campaignView.originalConstraintsMap.removeValue(forKey: replacedView)
+        }
     }
     
     

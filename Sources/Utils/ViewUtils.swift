@@ -64,7 +64,8 @@ class ViewUtils {
                 
         // Filtrer les contraintes internes de oldView pour ne garder que celles qui concernent ses sous-vues
         let filteredInternalConstraints = internalOriginalConstraints.filter { constraint in
-            if let firstItem = constraint.firstItem as? UIView, firstItem.isDescendant(of: oldView) && (constraint.secondItem == nil || (constraint.secondItem as? UIView)?.isDescendant(of: oldView) == true) {
+            if let firstItem = constraint.firstItem as? UIView, firstItem.isDescendant(of: oldView) 
+                && (constraint.secondItem == nil || (constraint.secondItem as? UIView)?.isDescendant(of: oldView) == true) {
                 return true
             }
             if let secondItem = constraint.secondItem as? UIView, secondItem.isDescendant(of: oldView) && (constraint.firstItem == nil || (constraint.firstItem as? UIView)?.isDescendant(of: oldView) == true) {
@@ -110,7 +111,6 @@ class ViewUtils {
                   let secondItem = (constraint.secondItem as? UIView == oldView) ? newView : constraint.secondItem else {
                 return nil
             }
-            
             return NSLayoutConstraint(
                 item: firstItem,
                 attribute: constraint.firstAttribute,
