@@ -15,7 +15,7 @@ import WebKit
 class InPageView : CampaignView, CampaignViewProtocol {
     /// Current Webview Containing the InPage Campaing
     var webView : WKWebView!
-    var containerView: UIView!
+    //var containerView: UIView!
     var heightConstraint: NSLayoutConstraint!
     var calculateHeight: CGFloat = 0.0
     
@@ -31,7 +31,7 @@ class InPageView : CampaignView, CampaignViewProtocol {
     }
     
     deinit {
-        //webView?.removeObserver(self, forKeyPath: #keyPath(WKWebView.bounds))
+        webView?.removeObserver(self, forKeyPath: #keyPath(WKWebView.bounds))
     }
 
     /// The view InPage will either be added alongside (to the right or left) or at the bottom/top of another view, or it will replace a view.
@@ -64,28 +64,28 @@ class InPageView : CampaignView, CampaignViewProtocol {
                         }
                     }
                     // Créez une vue conteneur
-                    containerView = UIView()
-                    containerView.translatesAutoresizingMaskIntoConstraints = false
+                    //containerView = UIView()
+                    //containerView.translatesAutoresizingMaskIntoConstraints = false
                     // Ajoutez la webView au conteneur
-                    containerView.addSubview(webView)
+                    //containerView.addSubview(webView)
                     // Désactiver la gestion automatique des contraintes pour la webView
                     webView.translatesAutoresizingMaskIntoConstraints = false
                     // Contrainte de hauteur pour la webView (celle-ci sera mise à jour dynamiquement)
                     heightConstraint = webView.heightAnchor.constraint(equalToConstant: 0)
                     heightConstraint.isActive = true
                     // Ajouter des contraintes pour attacher la webView au conteneur
-                    NSLayoutConstraint.activate([
-                        webView.topAnchor.constraint(equalTo: containerView.topAnchor),
-                        webView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor),
-                        webView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
-                        webView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor)
-                    ])
-                    parentStackView.insertArrangedSubview(containerView, at: indexToInsertView)
+                    //NSLayoutConstraint.activate([
+//                        webView.topAnchor.constraint(equalTo: containerView.topAnchor),
+//                        webView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor),
+//                        webView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
+//                        webView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor)
+//                    ])
+                    parentStackView.insertArrangedSubview(webView, at: indexToInsertView)
                     parentStackView.layoutIfNeeded()
                     
                     correctWebViewHeight()
                     // Ajouter un observateur de propriété
-                    // webView?.addObserver(self, forKeyPath: #keyPath(WKWebView.bounds), options: [.new, .old], context: nil)
+                    webView?.addObserver(self, forKeyPath: #keyPath(WKWebView.bounds), options: [.new, .old], context: nil)
                 }
                 else {
                     LogHelper.instance.showLog(
@@ -142,8 +142,9 @@ class InPageView : CampaignView, CampaignViewProtocol {
             guard let self = self else { return }
             if let height = result as? CGFloat {
                 DispatchQueue.main.async {
+                    LogHelper.instance.showLog(logToShow: "Setting height on webview to \(height)")
                     self.heightConstraint.constant = height
-                    self.webView.frame.size.height = height
+                    //self.webView.frame.size.height = height
                     self.webView.setNeedsLayout()
                     if let p = self.webView.superview {
                         p.layoutIfNeeded()
