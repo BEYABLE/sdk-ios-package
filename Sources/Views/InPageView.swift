@@ -143,6 +143,7 @@ class InPageView : CampaignView, CampaignViewProtocol {
             if let height = result as? CGFloat {
                 DispatchQueue.main.async {
                     self.heightConstraint.constant = height
+                    self.webView.frame.size.height = height
                     self.webView.setNeedsLayout()
                     if let p = self.webView.superview {
                         p.layoutIfNeeded()
