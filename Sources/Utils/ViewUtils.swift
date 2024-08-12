@@ -40,7 +40,7 @@ class ViewUtils {
             LogHelper.instance.showLog(logToShow: "View to be replaced not found")
             return nil
         }
-        let (originalConstraints, internalOriginalConstraints) =  replaceView(on: parent, oldView: oldView, with: newView) ?? (nil, nil)
+        var (originalConstraints, internalOriginalConstraints) =  replaceView(on: parent, oldView: oldView, with: newView) ?? (nil, nil)
         return (oldView, originalConstraints!, internalOriginalConstraints!)
     }
     
@@ -50,17 +50,17 @@ class ViewUtils {
             LogHelper.instance.showLog(logToShow: "Erreur: L'ancienne vue n'a pas de superview.")
             return nil
         }
-        
         var originalConstraints = [NSLayoutConstraint]()
         var internalOriginalConstraints = [NSLayoutConstraint]()
-        
+                
         // Save the original constraints if not already saved
         let constraintsToRemove = superview.constraints.filter { constraint in
             (constraint.firstItem as? UIView == oldView) || (constraint.secondItem as? UIView == oldView)
         }
         originalConstraints = constraintsToRemove
-        internalOriginalConstraints = oldView.allConstraints
-        
+        internalOriginalConstraints = oldView.constraints
+        NSLayoutConstraint.deactivate(internalOriginalConstraints)
+                
         // Filtrer les contraintes internes de oldView pour ne garder que celles qui concernent ses sous-vues
         let filteredInternalConstraints = internalOriginalConstraints.filter { constraint in
             if let firstItem = constraint.firstItem as? UIView, firstItem.isDescendant(of: oldView) && (constraint.secondItem == nil || (constraint.secondItem as? UIView)?.isDescendant(of: oldView) == true) {
@@ -72,16 +72,17 @@ class ViewUtils {
             return false
         }
         
-        // Get the old view's frame
+        // Get the old view's width
         let oldViewFrame = oldView.frame
         
         // Clean and remove the old view
-        oldView.removeConflictingConstraints()
+        oldView.cleanConstraints()
         oldView.removeFromSuperview()
         
         // Add the new view to the parent
         parent.addSubview(newView)
         newView.translatesAutoresizingMaskIntoConstraints = false
+        // Ajustez la taille et la position de la nouvelle vue
         newView.frame = oldViewFrame
         
         // Remap the constraints from the old view to the new view
@@ -100,9 +101,6 @@ class ViewUtils {
                 constant: constraint.constant
             )
         }
-        
-        // Retirer les contraintes conflictuelles du parent
-        parent.removeConflictingConstraints()
         NSLayoutConstraint.activate(newConstraints)
         
         // Activer les contraintes internes filtrées
@@ -111,6 +109,7 @@ class ViewUtils {
                   let secondItem = (constraint.secondItem as? UIView == oldView) ? newView : constraint.secondItem else {
                 return nil
             }
+            
             return NSLayoutConstraint(
                 item: firstItem,
                 attribute: constraint.firstAttribute,
@@ -121,18 +120,17 @@ class ViewUtils {
                 constant: constraint.constant
             )
         }
-        
-        // Retirer les contraintes conflictuelles du parent avant d'ajouter les nouvelles
-        parent.removeConflictingConstraints()
         NSLayoutConstraint.activate(newInternalConstraints)
         
         parent.setNeedsLayout()
         parent.layoutIfNeeded()
-        
+                
         return (originalConstraints, internalOriginalConstraints)
     }
     
-        
+    
+    
+    
     
     
     

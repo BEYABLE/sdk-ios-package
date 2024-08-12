@@ -8,21 +8,14 @@
 import UIKit
 
 extension NSLayoutConstraint {
-    
-    var isConfliting: Bool {
-        // Vérifie si les éléments de la contrainte sont les mêmes
-        if firstItem === secondItem {
-            return true
-        }
-        // Vérifie si les attributs des contraintes sont valides
-        guard let firstItem = firstItem as? UIView, let secondItem = secondItem as? UIView else {
+    /// Fonction pour vérifier si une contrainte est valide dans la nouvelle hiérarchie de vues
+    func isValid(in newView: UIView) -> Bool {
+        guard let firstItem = self.firstItem as? UIView, firstItem.isDescendant(of: newView) || firstItem == newView else {
             return false
         }
-        // Vérifie si les vues sont dans la même hiérarchie
-        if !firstItem.isDescendant(of: secondItem.superview!) && !secondItem.isDescendant(of: firstItem.superview!) {
-            return true
+        if let secondItem = self.secondItem as? UIView {
+            return secondItem.isDescendant(of: newView) || secondItem == newView
         }
-        
-        return false
+        return true
     }
 }
