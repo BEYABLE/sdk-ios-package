@@ -58,6 +58,7 @@ class ViewUtils {
             (constraint.firstItem as? UIView == oldView) || (constraint.secondItem as? UIView == oldView)
         }
         originalConstraints = constraintsToRemove
+        NSLayoutConstraint.deactivate(originalConstraints)
         internalOriginalConstraints = oldView.constraints
         NSLayoutConstraint.deactivate(internalOriginalConstraints)
                 
