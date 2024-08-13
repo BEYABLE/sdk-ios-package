@@ -26,7 +26,6 @@ public class BYHandleViews : NSObject, JavascriptCallback {
     private var inCollectionCampaigns:  [CampaignDTO] = [CampaignDTO]()
     private var inCollectionViews : [String: InCollectionView] = [String: InCollectionView]()
     
-    
     private var callBackService : CallBackService?
     
     public init(currentView: UIView?) {

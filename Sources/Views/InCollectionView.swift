@@ -19,17 +19,16 @@ class InCollectionView : CampaignView, CampaignViewProtocol {
     /// True if we are on a view SwiftUi
     var swiftUiCurrentView = false
     var currentViewController : UIViewController!
-    
-    var isStackView = false;
-    
+       
     var replacedViews: [String: UIView] = [String: UIView]()
     var originalConstraintsMap = [UIView: [NSLayoutConstraint]]()
     var internalOriginalConstraintsMap = [UIView: [NSLayoutConstraint]]()
     var originalStackConstraints : [NSLayoutConstraint]?
-    var addedOnStackViews = [UIView]()
         
     var ctaUrlWrappers = [UrlWrapper]()
     var ctaCallbackWrappers = [CallbackWrapper]()
+
+    private var workingWithStackView = false
     
     
     /**
@@ -62,19 +61,21 @@ class InCollectionView : CampaignView, CampaignViewProtocol {
         if let foundView = ViewUtils.findSubview(view: viewParent, withId: self.campaignDto.inCollectionPlacementId) {
             // We handle adding InPage in StackView
             if let parentStackView = foundView.superview as? UIStackView {
-                isStackView = true
+                self.workingWithStackView = true
                 if let index = parentStackView.arrangedSubviews.firstIndex(of: foundView) {
                     var indexToInsertView = 0
+                    // stackView.isHidden = false
                     // For the replace, we delete the element and replace it
-                    if(campaignDto.positionInPage == RelativePlacement.REPLACE) {
+                    if(campaignDto.inCollectionPlacement == RelativePlacement.REPLACE) {
                         indexToInsertView = index
+                        replacedViews[injectedViewTag] = foundView
                         foundView.isHidden = true
                     }
-                    else if(campaignDto.positionInPage == RelativePlacement.BELOW) {
+                    else if(campaignDto.inCollectionPlacement == RelativePlacement.BELOW) {
                         // We need to inject after this one for 'after' option
                         indexToInsertView = index + 1
                     }
-                    else if(campaignDto.positionInPage == RelativePlacement.ABOVE) {
+                    else if(campaignDto.inCollectionPlacement == RelativePlacement.ABOVE) {
                         if(index == 0) {
                             indexToInsertView = 0
                         }
@@ -86,6 +87,8 @@ class InCollectionView : CampaignView, CampaignViewProtocol {
                     parentStackView.insertArrangedSubview(stackView, at: indexToInsertView)
                     parentStackView.layoutIfNeeded()
                 }
+                // Set callback if needed
+                setCtaDelegate(injectedViewTag, delegate)
             } else {
                 // Check le placement
                 if self.campaignDto.inCollectionPlacement       == RelativePlacement.ABOVE {
@@ -100,7 +103,7 @@ class InCollectionView : CampaignView, CampaignViewProtocol {
                 if self.campaignDto.inCollectionPlacement       == RelativePlacement.BELOW {
                     
                 }
-                else if self.campaignDto.inCollectionPlacement  == RelativePlacement.REPLACE {
+                else if self.campaignDto.inCollectionPlacement == RelativePlacement.REPLACE {
                     let (replacedView, originalConstraints, internalOriginalConstraints) =
                     ViewUtils.replaceView(target:self.campaignDto.inCollectionPlacementId, on: containerView, with: stackView) ?? (nil, nil, nil)
                     if replacedView != nil && originalConstraints != nil && internalOriginalConstraints != nil {
@@ -129,13 +132,14 @@ class InCollectionView : CampaignView, CampaignViewProtocol {
     }
     
     func removeInjectedView(cell: UITableViewCell, injectedView: UIView, injectedViewId: String) {
-        LogHelper.instance.showLog(logToShow: "Removing injected view '\(injectedViewId)' on cell '\(cell)'")
-        if isStackView {
-            stackView.removeFromSuperview()
-            if let foundView = ViewUtils.findSubview(view: viewParent, withId: campaignDto.elementSelector ?? "") {
-                foundView.isHidden = false
-            }
+        if self.workingWithStackView {
+            LogHelper.instance.showLog(logToShow: "Removing injected view on UIstackView '\(injectedViewId)' on cell '\(cell)'")
+            let replacedView = replacedViews[injectedViewId]!
+            replacedView.isHidden = false
+            //stackView.isHidden = true
+            injectedView.removeFromSuperview()
         } else {
+            LogHelper.instance.showLog(logToShow: "Removing injected view '\(injectedViewId)' on cell '\(cell)'")
             originalStackConstraints = injectedView.constraints
             let replacedView = replacedViews[injectedViewId]!
             ViewUtils.restoreOriginalView(on: cell.contentView, oldView: injectedView, originalView: replacedView, originalConstraints: self.originalConstraintsMap[replacedView]!, internalOriginalConstraints: self.internalOriginalConstraintsMap[replacedView]!)
@@ -143,6 +147,7 @@ class InCollectionView : CampaignView, CampaignViewProtocol {
             //campaignView.originalConstraintsMap.removeValue(forKey: replacedView)
             //campaignView.originalConstraintsMap.removeValue(forKey: replacedView)
         }
+        
     }
     
     
