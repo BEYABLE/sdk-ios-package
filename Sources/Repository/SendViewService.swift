@@ -35,8 +35,12 @@ class SendViewService : NSObject, WKNavigationDelegate{
     ///   - cartInfos: ``BYCartInfos``
     ///   - success
     ///   - failure
-    public func sendPageview(url: String, page : EPageUrlTypeBeyable, attributes : BYAttributes?, cartInfos : BYCartInfos? = nil,
-                             success: @escaping (([CampaignDTO]) -> Void),  failure: @escaping ((BeyableDataAPIError) -> Void)){
+    public func sendPageview(url: String, 
+                             page : EPageUrlTypeBeyable,
+                             attributes : BYAttributes?, 
+                             cartInfos : BYCartInfos? = nil,
+                             appVersion: String?,
+                             success: @escaping (([CampaignDTO]) -> Void), failure: @escaping ((BeyableDataAPIError) -> Void)){
         var cartAttributes          : BYCartAttributes?
         var category                : BYCategoryAttributes?
         var genericPage             : BYGenericAttributes?
@@ -82,7 +86,7 @@ class SendViewService : NSObject, WKNavigationDelegate{
         
         let instanceBYRequestPageView = BYRequestPageView(
             page: pageData,
-            device: BYDeviceInfos(integratorAppVersion: nil),
+            device: BYDeviceInfos(integratorAppVersion: appVersion),
             visitor: userInfos,
             cartInfos: cartInfos,
             uniqueId: uniqueId,

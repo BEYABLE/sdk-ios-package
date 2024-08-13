@@ -22,9 +22,10 @@ protocol CallBackService {
 public class BeyableSDK : NSObject, WKNavigationDelegate, CallBackService{
 
     private var subscriptions = Set<AnyCancellable>()
-    
     /// Handles displaying views campaing
     private let displayers  = NSMapTable<NSString, BYHandleViews>(keyOptions: .strongMemory, valueOptions: .strongMemory)
+    /// The appVersion gived by the integrator
+    private var appVersion: String?
 
     /**
      This function initializes the Beyable SDK.
@@ -33,20 +34,40 @@ public class BeyableSDK : NSObject, WKNavigationDelegate, CallBackService{
      - parameter environment: By default it's production
      */
     
+    public convenience init(tokenClient: String, environment: EnvironmentBeyable? = EnvironmentBeyable.production, appVersion: String, loggingEnabledUser: Bool? = true) {
+        self.init(tokenClient: tokenClient, tenant: "", baseUrl: environment?.rawValue ?? EnvironmentBeyable.preprod.rawValue, appVersion: appVersion, loggingEnabledUser: loggingEnabledUser)
+    }
+    
     public convenience init(tokenClient: String, environment: EnvironmentBeyable? = EnvironmentBeyable.production, loggingEnabledUser: Bool? = true) {
         self.init(tokenClient: tokenClient, tenant: "", baseUrl: environment?.rawValue ?? EnvironmentBeyable.preprod.rawValue, loggingEnabledUser: loggingEnabledUser)
+    }
+    
+    public convenience init(tokenClient: String, baseUrl: String, appVersion: String, loggingEnabledUser: Bool? = true) {
+        self.init(tokenClient: tokenClient, tenant: "", baseUrl: baseUrl, appVersion: appVersion, loggingEnabledUser: loggingEnabledUser)
     }
     
     public convenience init(tokenClient: String, baseUrl: String, loggingEnabledUser: Bool? = true) {
         self.init(tokenClient: tokenClient, tenant: "", baseUrl: baseUrl, loggingEnabledUser: loggingEnabledUser)
     }
     
+    public convenience init(tokenClient: String, appVersion: String, loggingEnabledUser: Bool? = true) {
+        self.init(tokenClient: tokenClient, tenant: "", baseUrl: EnvironmentBeyable.preprod.rawValue, appVersion: appVersion, loggingEnabledUser: loggingEnabledUser)
+    }
+    
     public convenience init(tokenClient: String, loggingEnabledUser: Bool? = true) {
         self.init(tokenClient: tokenClient, tenant: "", baseUrl: EnvironmentBeyable.preprod.rawValue, loggingEnabledUser: loggingEnabledUser)
     }
     
+    public convenience init(tokenClient: String, baseUrl: String, appVersion: String) {
+        self.init(tokenClient: tokenClient, tenant: "", baseUrl: baseUrl, appVersion: appVersion, loggingEnabledUser: false)
+    }
+    
     public convenience init(tokenClient: String, baseUrl: String) {
         self.init(tokenClient: tokenClient, tenant: "", baseUrl: baseUrl, loggingEnabledUser: false)
+    }
+    
+    public convenience init(tokenClient: String, appVersion: String) {
+        self.init(tokenClient: tokenClient, tenant: "", baseUrl: EnvironmentBeyable.preprod.rawValue, appVersion: appVersion, loggingEnabledUser: false)
     }
     
     public convenience init(tokenClient: String) {
@@ -61,8 +82,9 @@ public class BeyableSDK : NSObject, WKNavigationDelegate, CallBackService{
      - parameter loggingEnabledUser: Optional. By default, it's false. Set it to true if you want to enable logging for the SDK.
      - parameter environment: By default it's production
      */
-    public init(tokenClient: String, tenant: String, baseUrl: String, loggingEnabledUser: Bool? = true) {
+    public init(tokenClient: String, tenant: String, baseUrl: String, appVersion: String? = nil, loggingEnabledUser: Bool? = true) {
         LogHelper.instance.showLog = loggingEnabledUser
+        self.appVersion = appVersion
         // Set the keys on Storage
         DataStorageHelper.setData(value: tokenClient, key: .apiKey)
         // Set the base url
@@ -90,6 +112,15 @@ public class BeyableSDK : NSObject, WKNavigationDelegate, CallBackService{
         SendViewService.instance.tenant = tenant
     }
     
+    
+    /**
+     Set the appVersion to be send on each sendPageView
+     - parameter appVersion: the integrator app version to be matched on backend
+     */
+    public func setAppVersion(appVersion: String?) {
+        self.appVersion = appVersion
+    }
+    
     /// Set the user infos to be send at each request
     /// - Parameter visitorInfos:the infos of the user ``BYVisitorInfos``
     public func setVisitorInfos(visitorInfos : BYVisitorInfos? = nil){
@@ -107,9 +138,9 @@ public class BeyableSDK : NSObject, WKNavigationDelegate, CallBackService{
     ///   - page: the BYPage with the information needed
     ///   - currentView: The current View
     ///   - attributes: The optional page-related information such as ``BYHomeAttributes``, ``BYTransactionAttributes``, ``BYCartInfos``, ``BYProductInfos``, ``BYCategory``, ``BYGenericAttributes``
-    public func sendPageview(url: String, page : EPageUrlTypeBeyable, currentView : UIView, attributes : BYAttributes?, cartInfos : BYCartInfos? = nil,
+    public func sendPageview(url: String, page: EPageUrlTypeBeyable, currentView : UIView, attributes : BYAttributes?, cartInfos : BYCartInfos? = nil,
                              callback: OnSendPageView?) {
-        SendViewService.instance.sendPageview(url: url, page: page, attributes: attributes, cartInfos : cartInfos,  success: { (campaignsDTO) in
+        SendViewService.instance.sendPageview(url: url, page: page, attributes: attributes, cartInfos : cartInfos, appVersion: self.appVersion, success: { (campaignsDTO) in
             let displayer = self.getOrCreateDisplayer(for: url, and: currentView)
             displayer.setCampagns(listCampagns: campaignsDTO, callBackService: self)
             if callback != nil {
@@ -141,7 +172,7 @@ public class BeyableSDK : NSObject, WKNavigationDelegate, CallBackService{
     public func sendPageview(url: String, page: EPageUrlTypeBeyable, currentView: any View,
                              attributes : BYAttributes?, cartInfos: BYCartInfos? = nil,
                              callback: OnSendPageView?) {
-        SendViewService.instance.sendPageview(url: url, page: page, attributes: attributes, cartInfos : cartInfos,  success: { (campaignsDTO) in
+        SendViewService.instance.sendPageview(url: url, page: page, attributes: attributes, cartInfos : cartInfos, appVersion: self.appVersion, success: { (campaignsDTO) in
             let displayer = self.getOrCreateDisplayer(for: url, and: nil)
             displayer.setCampagns(listCampagns: campaignsDTO, callBackService: self)
             if callback != nil {

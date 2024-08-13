@@ -83,7 +83,6 @@ class BeyableService {
             request.setValue(name, forHTTPHeaderField: "UserHostAddress")
         }
         request.setValue(DataStorageHelper.getData(type: String.self, forKey: .apiKey), forHTTPHeaderField: "Authorization")
-                
         let encoder = JSONEncoder()
         
         do {
