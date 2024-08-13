@@ -58,7 +58,7 @@ class InCollectionView : CampaignView, CampaignViewProtocol {
         let containerView = cell.contentView;
         
         // Check if we are on stackview or not
-        if let foundView = ViewUtils.findSubview(view: viewParent, withId: self.campaignDto.inCollectionPlacementId) {
+        if let foundView = ViewUtils.findSubview(view: containerView, withId: self.campaignDto.inCollectionPlacementId) {
             // We handle adding InPage in StackView
             if let parentStackView = foundView.superview as? UIStackView {
                 self.workingWithStackView = true
