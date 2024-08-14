@@ -26,6 +26,8 @@ public class BeyableSDK : NSObject, WKNavigationDelegate, CallBackService{
     private let displayers  = NSMapTable<NSString, BYHandleViews>(keyOptions: .strongMemory, valueOptions: .strongMemory)
     /// The appVersion gived by the integrator
     private var appVersion: String?
+    /// Flag pour activer/desactiver le SDK
+    private var featured: Bool = true
 
     /**
      This function initializes the Beyable SDK.
@@ -34,44 +36,46 @@ public class BeyableSDK : NSObject, WKNavigationDelegate, CallBackService{
      - parameter environment: By default it's production
      */
     
-    public convenience init(tokenClient: String, environment: EnvironmentBeyable? = EnvironmentBeyable.production, appVersion: String, loggingEnabledUser: Bool? = true) {
-        self.init(tokenClient: tokenClient, tenant: "", baseUrl: environment?.rawValue ?? EnvironmentBeyable.preprod.rawValue, appVersion: appVersion, loggingEnabledUser: loggingEnabledUser)
+    public convenience init(tokenClient: String, environment: EnvironmentBeyable? = EnvironmentBeyable.production, appVersion: String, 
+                            	loggingEnabledUser: Bool? = true, featured: Bool=true) {
+        self.init(tokenClient: tokenClient, tenant: "", baseUrl: environment?.rawValue ?? EnvironmentBeyable.preprod.rawValue, appVersion: appVersion, featured: featured, loggingEnabledUser: loggingEnabledUser)
     }
     
-    public convenience init(tokenClient: String, environment: EnvironmentBeyable? = EnvironmentBeyable.production, loggingEnabledUser: Bool? = true) {
-        self.init(tokenClient: tokenClient, tenant: "", baseUrl: environment?.rawValue ?? EnvironmentBeyable.preprod.rawValue, loggingEnabledUser: loggingEnabledUser)
+    public convenience init(tokenClient: String, environment: EnvironmentBeyable? = EnvironmentBeyable.production, 
+                            loggingEnabledUser: Bool? = true, featured: Bool=true) {
+        self.init(tokenClient: tokenClient, tenant: "", baseUrl: environment?.rawValue ?? EnvironmentBeyable.preprod.rawValue, featured: featured, loggingEnabledUser: loggingEnabledUser)
     }
     
-    public convenience init(tokenClient: String, baseUrl: String, appVersion: String, loggingEnabledUser: Bool? = true) {
-        self.init(tokenClient: tokenClient, tenant: "", baseUrl: baseUrl, appVersion: appVersion, loggingEnabledUser: loggingEnabledUser)
+    public convenience init(tokenClient: String, baseUrl: String, appVersion: String, loggingEnabledUser: Bool? = true, featured: Bool=true) {
+        self.init(tokenClient: tokenClient, tenant: "", baseUrl: baseUrl, appVersion: appVersion, featured: featured, loggingEnabledUser: loggingEnabledUser)
     }
     
-    public convenience init(tokenClient: String, baseUrl: String, loggingEnabledUser: Bool? = true) {
-        self.init(tokenClient: tokenClient, tenant: "", baseUrl: baseUrl, loggingEnabledUser: loggingEnabledUser)
+    public convenience init(tokenClient: String, baseUrl: String, loggingEnabledUser: Bool? = true, featured: Bool=true) {
+        self.init(tokenClient: tokenClient, tenant: "", baseUrl: baseUrl, featured: featured, loggingEnabledUser: loggingEnabledUser)
     }
     
-    public convenience init(tokenClient: String, appVersion: String, loggingEnabledUser: Bool? = true) {
-        self.init(tokenClient: tokenClient, tenant: "", baseUrl: EnvironmentBeyable.preprod.rawValue, appVersion: appVersion, loggingEnabledUser: loggingEnabledUser)
+    public convenience init(tokenClient: String, appVersion: String, loggingEnabledUser: Bool? = true, featured: Bool=true) {
+        self.init(tokenClient: tokenClient, tenant: "", baseUrl: EnvironmentBeyable.preprod.rawValue, appVersion: appVersion, featured: featured, loggingEnabledUser: loggingEnabledUser)
     }
     
-    public convenience init(tokenClient: String, loggingEnabledUser: Bool? = true) {
-        self.init(tokenClient: tokenClient, tenant: "", baseUrl: EnvironmentBeyable.preprod.rawValue, loggingEnabledUser: loggingEnabledUser)
+    public convenience init(tokenClient: String, loggingEnabledUser: Bool? = true, featured: Bool=true) {
+        self.init(tokenClient: tokenClient, tenant: "", baseUrl: EnvironmentBeyable.preprod.rawValue, featured: featured, loggingEnabledUser: loggingEnabledUser)
     }
     
-    public convenience init(tokenClient: String, baseUrl: String, appVersion: String) {
-        self.init(tokenClient: tokenClient, tenant: "", baseUrl: baseUrl, appVersion: appVersion, loggingEnabledUser: false)
+    public convenience init(tokenClient: String, baseUrl: String, appVersion: String, featured: Bool=true) {
+        self.init(tokenClient: tokenClient, tenant: "", baseUrl: baseUrl, appVersion: appVersion, featured: featured, loggingEnabledUser: false)
     }
     
-    public convenience init(tokenClient: String, baseUrl: String) {
-        self.init(tokenClient: tokenClient, tenant: "", baseUrl: baseUrl, loggingEnabledUser: false)
+    public convenience init(tokenClient: String, baseUrl: String, featured: Bool=true) {
+        self.init(tokenClient: tokenClient, tenant: "", baseUrl: baseUrl, featured: featured, loggingEnabledUser: false)
     }
     
-    public convenience init(tokenClient: String, appVersion: String) {
-        self.init(tokenClient: tokenClient, tenant: "", baseUrl: EnvironmentBeyable.preprod.rawValue, appVersion: appVersion, loggingEnabledUser: false)
+    public convenience init(tokenClient: String, appVersion: String, featured: Bool=true) {
+        self.init(tokenClient: tokenClient, tenant: "", baseUrl: EnvironmentBeyable.preprod.rawValue, appVersion: appVersion, featured: featured, loggingEnabledUser: false)
     }
     
-    public convenience init(tokenClient: String) {
-        self.init(tokenClient: tokenClient, tenant: "", baseUrl: EnvironmentBeyable.preprod.rawValue, loggingEnabledUser: false)
+    public convenience init(tokenClient: String, featured: Bool=true) {
+        self.init(tokenClient: tokenClient, tenant: "", baseUrl: EnvironmentBeyable.preprod.rawValue, featured: featured, loggingEnabledUser: false)
     }
     
     
@@ -82,9 +86,10 @@ public class BeyableSDK : NSObject, WKNavigationDelegate, CallBackService{
      - parameter loggingEnabledUser: Optional. By default, it's false. Set it to true if you want to enable logging for the SDK.
      - parameter environment: By default it's production
      */
-    public init(tokenClient: String, tenant: String, baseUrl: String, appVersion: String? = nil, loggingEnabledUser: Bool? = true) {
+    public init(tokenClient: String, tenant: String, baseUrl: String, appVersion: String? = nil, featured:Bool = true,  loggingEnabledUser: Bool? = true) {
         LogHelper.instance.showLog = loggingEnabledUser
         self.appVersion = appVersion
+        self.featured = featured
         // Set the keys on Storage
         DataStorageHelper.setData(value: tokenClient, key: .apiKey)
         // Set the base url
@@ -112,13 +117,20 @@ public class BeyableSDK : NSObject, WKNavigationDelegate, CallBackService{
         SendViewService.instance.tenant = tenant
     }
     
-    
     /**
      Set the appVersion to be send on each sendPageView
      - parameter appVersion: the integrator app version to be matched on backend
      */
     public func setAppVersion(appVersion: String?) {
         self.appVersion = appVersion
+    }
+    
+    /**
+     Set the featured flag to activate/deactivate the SDK
+     - parameter featured: true to activate, false otherwise
+     */
+    public func setFeatured(featured: Bool) {
+        self.featured = featured
     }
     
     /// Set the user infos to be send at each request
@@ -140,6 +152,9 @@ public class BeyableSDK : NSObject, WKNavigationDelegate, CallBackService{
     ///   - attributes: The optional page-related information such as ``BYHomeAttributes``, ``BYTransactionAttributes``, ``BYCartInfos``, ``BYProductInfos``, ``BYCategory``, ``BYGenericAttributes``
     public func sendPageview(url: String, page: EPageUrlTypeBeyable, currentView : UIView, attributes : BYAttributes?, cartInfos : BYCartInfos? = nil,
                              callback: OnSendPageView?) {
+        if !featured {
+            return
+        }
         SendViewService.instance.sendPageview(url: url, page: page, attributes: attributes, cartInfos : cartInfos, appVersion: self.appVersion, success: { (campaignsDTO) in
             let displayer = self.getOrCreateDisplayer(for: url, and: currentView)
             displayer.setCampagns(listCampagns: campaignsDTO, callBackService: self)
@@ -172,6 +187,9 @@ public class BeyableSDK : NSObject, WKNavigationDelegate, CallBackService{
     public func sendPageview(url: String, page: EPageUrlTypeBeyable, currentView: any View,
                              attributes : BYAttributes?, cartInfos: BYCartInfos? = nil,
                              callback: OnSendPageView?) {
+        if !featured {
+            return
+        }
         SendViewService.instance.sendPageview(url: url, page: page, attributes: attributes, cartInfos : cartInfos, appVersion: self.appVersion, success: { (campaignsDTO) in
             let displayer = self.getOrCreateDisplayer(for: url, and: nil)
             displayer.setCampagns(listCampagns: campaignsDTO, callBackService: self)
@@ -215,12 +233,18 @@ public class BeyableSDK : NSObject, WKNavigationDelegate, CallBackService{
     // MARK: - UITableView cells binding for InCollection campaigns
     
     public func sendCellBinded(url: String, cell: UITableViewCell, elementId: String, callback: OnCtaDelegate?) {
+        if !featured {
+            return
+        }
         LogHelper.instance.showLog(logToShow: "Binding cell on page '\(url)' for element '\(elementId)'")
         let displayer = self.getOrCreateDisplayer(for: url, and: nil)
         displayer.cellBinded(cell: cell, elementId: elementId, callback: callback)
     }
     
     public func sendCellUnbinded(url: String, cell: UITableViewCell, elementId: String) {
+        if !featured {
+            return
+        }
         LogHelper.instance.showLog(logToShow: "Uninding cell on page '\(url)' for element '\(elementId)'")
         let displayer = self.getOrCreateDisplayer(for: url, and: nil)
         displayer.cellUnbinded(cell: cell, elementId: elementId)
@@ -243,6 +267,9 @@ public class BeyableSDK : NSObject, WKNavigationDelegate, CallBackService{
     ///
     public func saveObjectif(amount: CGFloat, numberOfItems: Int, reference: String, payment: String, promoCode: String, paymentStatus: String,
                              paymentDate: String, isNewClient: Bool, pseudoId: String, tags: [String]) {
+        if !featured {
+            return
+        }
         SendViewService.instance.saveObjective(amount: amount, numberOfItems: numberOfItems, reference: reference, payment: payment, promoCode: promoCode, paymentStatus: paymentStatus, paymentDate: paymentDate, isNewClient: isNewClient, pseudoId: pseudoId, tags: tags)
     }
     
@@ -254,6 +281,9 @@ public class BeyableSDK : NSObject, WKNavigationDelegate, CallBackService{
     ///     interactions ([BYInteraction]): Une liste d'interactions utilisateur. BYInteraction est un type représentant une interaction spécifique.
 
     public func saveInteraction(pageViewDate: String, pageUrl: String, interactions: [BYInteraction]) {
+        if !featured {
+            return
+        }
         SendViewService.instance.saveInteraction(campaignId: "", slideId: "", pageViewDate: pageViewDate, pageUrl: pageUrl, interactions: interactions)
     }
     
