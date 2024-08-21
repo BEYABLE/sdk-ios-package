@@ -86,6 +86,8 @@ class InCollectionView : CampaignView, CampaignViewProtocol {
                     stackView.translatesAutoresizingMaskIntoConstraints = false
                     parentStackView.insertArrangedSubview(stackView, at: indexToInsertView)
                     parentStackView.layoutIfNeeded()
+                    cell.contentView.setNeedsLayout()
+                    cell.contentView.layoutIfNeeded()
                 }
                 // Set callback if needed
                 setCtaDelegate(injectedViewTag, delegate)
@@ -138,6 +140,8 @@ class InCollectionView : CampaignView, CampaignViewProtocol {
             replacedView.isHidden = false
             //stackView.isHidden = true
             injectedView.removeFromSuperview()
+            cell.contentView.setNeedsLayout()
+            cell.contentView.layoutIfNeeded()
         } else {
             LogHelper.instance.showLog(logToShow: "Removing injected view '\(injectedViewId)' on cell '\(cell)'")
             originalStackConstraints = injectedView.constraints
@@ -212,7 +216,7 @@ class InCollectionView : CampaignView, CampaignViewProtocol {
                    }
                }
                self.stackView.addArrangedSubview(imageView)
-           } else if display.componentType == DisplayComponentType.TEXT  {
+           } else if display.componentType == DisplayComponentType.TEXT {
                let textDisplay = display.textDisplay
                let label = UILabel()
                // Configure the text
