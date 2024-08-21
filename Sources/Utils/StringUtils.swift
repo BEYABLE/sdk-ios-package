@@ -58,7 +58,7 @@ class StringUtils {
         // Delete comments from html
         htmlWithoutCSS = htmlWithoutCSS.replacingOccurrences(of: "(?s)<!--.*?-->", with: "", options: .regularExpression)
         
-        htmlString = "<html><head></head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"> <body><div id=\"by_r_\(idk)\">\(htmlWithoutCSS) </div></body></html>";
+        htmlString = "<html><head></head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"> <body style=\"margin: 0px !important\"><div id=\"by_r_\(idk)\">\(htmlWithoutCSS) </div></body></html>";
         
         css = WebViewUtils.instance.cleanCss(cssToClean: css)
         
@@ -84,7 +84,7 @@ class StringUtils {
         
         // Delete comments from html
         htmlWithoutCSS = htmlWithoutCSS.replacingOccurrences(of: "(?s)<!--.*?-->", with: "", options: .regularExpression)
-        htmlString = "<html><head></head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0,user-scalable=no\"><body><div id=\"by_r_\(idk)\">\(htmlWithoutCSS)</div></body></html>";
+        htmlString = "<html><head></head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0,user-scalable=no\"><body style=\"margin: 0px !important\"><div id=\"by_r_\(idk)\">\(htmlWithoutCSS)</div></body></html>";
         css = WebViewUtils.instance.cleanCss(cssToClean: css)
         htmlString += css
         

@@ -32,6 +32,7 @@ public class CampaignDTO: Identifiable, Hashable  {
     var alreadyShowen : Bool = false
     // Relative placement for InPage
     var positionInPage : RelativePlacement = RelativePlacement.ABOVE
+    var inPageHeight: CGFloat = 0.0
     /// Liste des objects avec les informations d'affichage
     var displays: [DisplayDTO] = []
     
@@ -39,8 +40,7 @@ public class CampaignDTO: Identifiable, Hashable  {
     var inCollectionPlacementId: String = ""
     var inCollectionPlacement: RelativePlacement = RelativePlacement.ABOVE
     
-    
-    
+        
     func isTarget(_ elementId: String) -> Bool {
         for target in self.inCollectionTargets {
             if target.caseInsensitiveCompare(elementId) == .orderedSame {

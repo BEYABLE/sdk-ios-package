@@ -27,6 +27,9 @@ class InPageView : CampaignView, CampaignViewProtocol {
      */
     override init(campaignDto: CampaignDTO?, viewParent: UIView?, callBackJavascript : JavascriptCallback) {
         super.init(campaignDto: campaignDto, viewParent: viewParent, callBackJavascript : callBackJavascript)
+        if (campaignDto != nil) {
+            self.calculateHeight = campaignDto!.inPageHeight
+        }
         self.webView = self.initWebView(campaignCallBack: self)
     }
     
@@ -138,20 +141,31 @@ class InPageView : CampaignView, CampaignViewProtocol {
     }
             
     func correctWebViewHeight() {
-        webView.evaluateJavaScript("document.getElementsByClassName('by_outer')[0].offsetHeight") { [weak self] result, error in
-            guard let self = self else { return }
-            if let height = result as? CGFloat {
-                DispatchQueue.main.async {
-                    LogHelper.instance.showLog(logToShow: "Setting height on webview to \(height)")
-                    self.heightConstraint.constant = height
-                    //self.webView.frame.size.height = height
-                    self.webView.setNeedsLayout()
-                    if let p = self.webView.superview {
-                        p.layoutIfNeeded()
-                    }
+        if calculateHeight != 0 {
+            DispatchQueue.main.async {
+                self.heightConstraint.constant = self.calculateHeight
+                //self.webView.frame.size.height = height
+                self.webView.setNeedsLayout()
+                if let p = self.webView.superview {
+                    p.layoutIfNeeded()
                 }
-            } else if let error = error {
-                LogHelper.instance.showLog(logToShow: "Error evaluating JavaScript: \(error)")
+            }
+        } else {
+            webView.evaluateJavaScript("document.getElementsByClassName('by_outer')[0].offsetHeight") { [weak self] result, error in
+                guard let self = self else { return }
+                if let height = result as? CGFloat {
+                    DispatchQueue.main.async {
+                        LogHelper.instance.showLog(logToShow: "Setting height on webview to \(height)")
+                        self.heightConstraint.constant = height
+                        //self.webView.frame.size.height = height
+                        self.webView.setNeedsLayout()
+                        if let p = self.webView.superview {
+                            p.layoutIfNeeded()
+                        }
+                    }
+                } else if let error = error {
+                    LogHelper.instance.showLog(logToShow: "Error evaluating JavaScript: \(error)")
+                }
             }
         }
     }
