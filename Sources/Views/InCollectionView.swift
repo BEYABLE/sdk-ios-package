@@ -136,8 +136,9 @@ class InCollectionView : CampaignView, CampaignViewProtocol {
     func removeInjectedView(cell: UITableViewCell, injectedView: UIView, injectedViewId: String) {
         if self.workingWithStackView {
             LogHelper.instance.showLog(logToShow: "Removing injected view on UIstackView '\(injectedViewId)' on cell '\(cell)'")
-            let replacedView = replacedViews[injectedViewId]!
-            replacedView.isHidden = false
+             if let replacedView = replacedViews[injectedViewId] {
+                replacedView.isHidden = false
+             }
             //stackView.isHidden = true
             injectedView.removeFromSuperview()
             cell.contentView.setNeedsLayout()
