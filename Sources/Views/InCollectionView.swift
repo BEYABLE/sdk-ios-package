@@ -131,12 +131,13 @@ class InCollectionView : CampaignView, CampaignViewProtocol {
                     }
                 }
             }
-        } else {
-            LogHelper.instance.showLog(logToShow: "View to work with not found, focing refresh of the cell")
-            cell.contentView.translatesAutoresizingMaskIntoConstraints = false
-            cell.contentView.setNeedsLayout()
-            cell.contentView.layoutIfNeeded()
-        }
+        } 
+//        else {
+//            LogHelper.instance.showLog(logToShow: "View to work with not found, focing refresh of the cell")
+//            cell.contentView.translatesAutoresizingMaskIntoConstraints = false
+//            cell.contentView.setNeedsLayout()
+//            cell.contentView.layoutIfNeeded()
+//        }
         // Set callback if needed
         setCtaDelegate(injectedViewTag, delegate)
     }
