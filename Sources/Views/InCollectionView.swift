@@ -86,6 +86,7 @@ class InCollectionView : CampaignView, CampaignViewProtocol {
                     stackView.translatesAutoresizingMaskIntoConstraints = false
                     parentStackView.translatesAutoresizingMaskIntoConstraints = false
                     parentStackView.insertArrangedSubview(stackView, at: indexToInsertView)
+                    parentStackView.setNeedsLayout()
                     parentStackView.layoutIfNeeded()
                     cell.contentView.translatesAutoresizingMaskIntoConstraints = false
                     cell.contentView.setNeedsLayout()
